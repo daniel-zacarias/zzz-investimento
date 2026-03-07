@@ -1,4 +1,4 @@
 package br.zzz.investimento.domain;
 
-public class ValueObject {
+public abstract class ValueObject {
 }

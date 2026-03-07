@@ -1,8 +1,9 @@
-package com.fullcycle.admin.catalogo.domain.validation.handler;
+package br.zzz.investimento.domain.validation.handler;
 
-import com.fullcycle.admin.catalogo.domain.exceptions.DomainException;
-import com.fullcycle.admin.catalogo.domain.validation.Error;
-import com.fullcycle.admin.catalogo.domain.validation.ValidationHandler;
+
+import br.zzz.investimento.domain.exceptions.DomainException;
+import br.zzz.investimento.domain.validation.ValidationHandler;
+import br.zzz.investimento.domain.validation.Error;
 
 import java.util.ArrayList;
 import java.util.List;
