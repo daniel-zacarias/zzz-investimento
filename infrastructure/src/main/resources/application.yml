@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: investimento
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    root: INFO
+    com.investimento: DEBUG
