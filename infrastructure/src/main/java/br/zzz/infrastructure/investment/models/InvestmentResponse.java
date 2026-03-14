@@ -1,0 +1,13 @@
+package br.zzz.infrastructure.investment.models;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record InvestmentResponse(
+        @JsonProperty("id") String id,
+        @JsonProperty("amount") Double amount,
+        @JsonProperty("annualPeriod") Integer annualPeriod,
+        @JsonProperty("annualRate") Double annualRate,
+        @JsonProperty("result") Double result,
+        @JsonProperty("createdAt") String createdAt
+) {
+}

@@ -7,7 +7,7 @@ import br.zzz.investimento.domain.validation.handler.Notification;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 public class Investment extends AggregateRoot<InvestmentID> {
 
@@ -19,20 +19,20 @@ public class Investment extends AggregateRoot<InvestmentID> {
 
     private final BigDecimal annualRate;
 
-    private final Timestamp createdAt;
+    private final Instant createdAt;
 
-    private final Timestamp updatedAt;
+    private final Instant updatedAt;
 
-    private final Timestamp deletedAt;
+    private final Instant deletedAt;
 
     protected Investment(
             final InvestmentID investmentID,
             final Integer annualPeriod,
             final BigDecimal amount,
             final BigDecimal annualRate,
-            final Timestamp createdAt,
-            final Timestamp updatedAt,
-            final Timestamp deletedAt) {
+            final Instant createdAt,
+            final Instant updatedAt,
+            final Instant deletedAt) {
         super(investmentID);
         this.annualPeriod = annualPeriod;
         this.amount = amount;
@@ -50,7 +50,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
             final BigDecimal amount,
             final BigDecimal annualRate) {
         final var anId = InvestmentID.unique();
-        final var now = new Timestamp(System.currentTimeMillis());
+        final var now = Instant.now();
         return new Investment(
                 anId,
                 annualPeriod,
@@ -70,6 +70,24 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 investment.createdAt,
                 investment.updatedAt,
                 investment.deletedAt);
+    }
+
+    public static Investment with(
+            final InvestmentID anId,
+            final Integer annualPeriod,
+            final BigDecimal amount,
+            final BigDecimal annualRate,
+            final Instant createdAt,
+            final Instant updatedAt,
+            final Instant deletedAt) {
+        return new Investment(
+                anId,
+                annualPeriod,
+                amount,
+                annualRate,
+                createdAt,
+                updatedAt,
+                deletedAt);
     }
 
     @Override
@@ -93,15 +111,15 @@ public class Investment extends AggregateRoot<InvestmentID> {
         return annualRate;
     }
 
-    public Timestamp getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public Timestamp getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public Timestamp getDeletedAt() {
+    public Instant getDeletedAt() {
         return deletedAt;
     }
 
@@ -115,7 +133,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 amount,
                 annualRate,
                 this.createdAt,
-                new Timestamp(System.currentTimeMillis()),
+                Instant.now(),
                 this.deletedAt);
     }
 
@@ -126,8 +144,8 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 this.amount,
                 this.annualRate,
                 this.createdAt,
-                new Timestamp(System.currentTimeMillis()),
-                new Timestamp(System.currentTimeMillis()));
+                Instant.now(),
+                Instant.now());
     }
 
     private BigDecimal calculate() {

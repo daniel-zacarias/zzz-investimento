@@ -16,11 +16,11 @@ public class DefaultFindInvestmentByIdUseCase extends FindInvestmentByIdUseCase 
     }
 
     @Override
-    public FindInvestmentByIdOutput execute(final String id) {
+    public InvestmentOutput execute(final String id) {
         final var investmentID = InvestmentID.from(id);
 
         return gateway.findById(investmentID)
-                .map(FindInvestmentByIdOutput::from)
+                .map(InvestmentOutput::from)
                 .orElseThrow(() -> DomainException.with(new Error("Investment with id %s was not found".formatted(id))));
     }
 }
