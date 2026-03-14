@@ -29,14 +29,17 @@ public class InvestmentJpaEntity {
     @Column(name = "annual_period", nullable = false)
     private Integer annualPeriod;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "DATETIME(6)")
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP(6)")
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME(6)")
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP(6)")
     private Instant updatedAt;
 
-    @Column(name = "deleted_at", columnDefinition = "DATETIME(6)")
+    @Column(name = "deleted_at", columnDefinition = "TIMESTAMP(6)")
     private Instant deletedAt;
+
+    public InvestmentJpaEntity() {
+    }
 
     public InvestmentJpaEntity(
             String id,

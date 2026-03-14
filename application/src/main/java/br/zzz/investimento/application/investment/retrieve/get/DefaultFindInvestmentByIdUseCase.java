@@ -1,11 +1,12 @@
 package br.zzz.investimento.application.investment.retrieve.get;
 
-import br.zzz.investimento.domain.exceptions.DomainException;
+import br.zzz.investimento.domain.exceptions.NotFoundException;
+import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 import br.zzz.investimento.domain.investment.InvestmentID;
-import br.zzz.investimento.domain.validation.Error;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class DefaultFindInvestmentByIdUseCase extends FindInvestmentByIdUseCase {
 
@@ -21,6 +22,10 @@ public class DefaultFindInvestmentByIdUseCase extends FindInvestmentByIdUseCase 
 
         return gateway.findById(investmentID)
                 .map(InvestmentOutput::from)
-                .orElseThrow(() -> DomainException.with(new Error("Investment with id %s was not found".formatted(id))));
+                .orElseThrow(notFound(investmentID));
+    }
+
+    private Supplier<NotFoundException> notFound(InvestmentID id) {
+        return () -> NotFoundException.with(Investment.class, id);
     }
 }

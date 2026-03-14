@@ -1,11 +1,12 @@
 package br.zzz.investimento.application.investment.update;
 
-import br.zzz.investimento.domain.exceptions.DomainException;
+import br.zzz.investimento.domain.exceptions.NotFoundException;
+import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 import br.zzz.investimento.domain.investment.InvestmentID;
-import br.zzz.investimento.domain.validation.Error;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class DefaultUpdateInvestmentUseCase extends UpdateInvestmentUseCase {
 
@@ -20,10 +21,14 @@ public class DefaultUpdateInvestmentUseCase extends UpdateInvestmentUseCase {
         final var id = InvestmentID.from(command.id());
 
         final var investment = gateway.findById(id)
-                .orElseThrow(() -> DomainException.with(new Error("Investment with id %s was not found".formatted(command.id()))));
+                .orElseThrow(notFound(id));
 
         final var updatedInvestment = investment.update(command.annualPeriod(), command.amount(), command.annualRate());
 
         return UpdateInvestmentOutput.from(gateway.update(updatedInvestment));
+    }
+
+    private Supplier<NotFoundException> notFound(final InvestmentID id) {
+        return () -> NotFoundException.with(Investment.class, id);
     }
 }

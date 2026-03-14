@@ -22,21 +22,28 @@ public class InvestmentPostgresGateway implements InvestmentGateway {
 
     @Override
     public Investment create(Investment investment) {
-        return investmentRepository.save(InvestmentJpaEntity.from(investment)).toAggregate();
+        return save(investment);
     }
 
     @Override
     public void deleteById(InvestmentID id) {
-
+        investmentRepository.deleteById(id.getValue());
     }
 
     @Override
     public Optional<Investment> findById(InvestmentID id) {
-        return Optional.empty();
+        return investmentRepository.findById(id.getValue()).map(InvestmentJpaEntity::toAggregate);
     }
 
     @Override
     public Investment update(Investment investment) {
-        return null;
+        if(!investmentRepository.existsById(investment.getId().getValue())){
+            throw new IllegalArgumentException("Investment with ID %s not found".formatted(investment.getId().getValue()));
+        }
+        return save(investment);
+    }
+
+    private Investment save(final Investment investment) {
+        return investmentRepository.save(InvestmentJpaEntity.from(investment)).toAggregate();
     }
 }
