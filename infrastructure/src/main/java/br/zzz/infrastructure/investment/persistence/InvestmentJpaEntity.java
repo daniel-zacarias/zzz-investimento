@@ -6,10 +6,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@SQLDelete(sql = "UPDATE investments SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 @Entity(name = "Investment")
 @Table(name = "investments")
 public class InvestmentJpaEntity {
@@ -49,8 +53,7 @@ public class InvestmentJpaEntity {
             Integer annualPeriod,
             Instant createdAt,
             Instant updatedAt,
-            Instant deletedAt
-    ) {
+            Instant deletedAt) {
         this.id = id;
         this.amount = amount;
         this.annualRate = annualRate;
@@ -61,7 +64,6 @@ public class InvestmentJpaEntity {
         this.deletedAt = deletedAt;
     }
 
-
     public static InvestmentJpaEntity from(Investment entity) {
         return new InvestmentJpaEntity(
                 entity.getId().getValue(),
@@ -71,8 +73,7 @@ public class InvestmentJpaEntity {
                 entity.getAnnualPeriod(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
-                entity.getDeletedAt()
-        );
+                entity.getDeletedAt());
     }
 
     public Investment toAggregate() {
@@ -83,8 +84,7 @@ public class InvestmentJpaEntity {
                 new BigDecimal(getAnnualRate()),
                 getCreatedAt(),
                 getUpdatedAt(),
-                getDeletedAt()
-        );
+                getDeletedAt());
     }
 
     public String getId() {
