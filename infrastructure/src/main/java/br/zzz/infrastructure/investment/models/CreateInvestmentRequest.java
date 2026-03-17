@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record CreateInvestmentRequest(
                 @JsonProperty("amount") String amount,
                 @JsonProperty("annualPeriod") Integer annualPeriod,
-                @JsonProperty("annualRate") String annualRate) {
+                @JsonProperty("annualRate") String annualRate,
+                @JsonProperty("walletId") String walletId) {
 
 }

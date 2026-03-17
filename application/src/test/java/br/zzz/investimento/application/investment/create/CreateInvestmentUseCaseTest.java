@@ -3,6 +3,7 @@ package br.zzz.investimento.application.investment.create;
 import br.zzz.investimento.application.UseCaseTest;
 import br.zzz.investimento.domain.exceptions.NotificationException;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
+import br.zzz.investimento.domain.wallet.WalletID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -36,8 +37,9 @@ public class CreateInvestmentUseCaseTest extends UseCaseTest {
         final var expectedAmount = new BigDecimal("1000.0");
         final var expectedAnnualPeriod = 5;
         final var expectedAnnualRate = new BigDecimal("0.01");
+        final var expectedWalletID = WalletID.unique().getValue();
 
-        final var aCommand = CreateInvestmentCommand.with(expectedAmount, expectedAnnualPeriod, expectedAnnualRate);
+        final var aCommand = CreateInvestmentCommand.with(expectedAmount, expectedAnnualPeriod, expectedAnnualRate, expectedWalletID);
         // when
         when(investmentGateway.create(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -51,6 +53,7 @@ public class CreateInvestmentUseCaseTest extends UseCaseTest {
             Objects.equals(investment.getAmount(), expectedAmount)
                     && Objects.equals(investment.getAnnualPeriod(), expectedAnnualPeriod)
                     && Objects.equals(investment.getAnnualRate(), expectedAnnualRate)
+                    && Objects.equals(investment.getWallet().getValue(), expectedWalletID)
                     && Objects.nonNull(investment.getCreatedAt())
                     && Objects.nonNull(investment.getUpdatedAt())
                     && Objects.isNull(investment.getDeletedAt())
@@ -66,8 +69,9 @@ public class CreateInvestmentUseCaseTest extends UseCaseTest {
         final var expectedAmount = new BigDecimal("1000.0");
         final var expectedAnnualPeriod = 0;
         final var expectedAnnualRate = new BigDecimal("0.01");
+        final var expectedWalletID = WalletID.unique().getValue();
 
-        final var aCommand = CreateInvestmentCommand.with(expectedAmount, expectedAnnualPeriod, expectedAnnualRate);
+        final var aCommand = CreateInvestmentCommand.with(expectedAmount, expectedAnnualPeriod, expectedAnnualRate, expectedWalletID);
 
         // when
         final var actualException = Assertions.assertThrows(

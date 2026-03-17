@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS wallets(
+  id VARCHAR(36) PRIMARY KEY,
+  user_id VARCHAR(36) NOT NULL UNIQUE,
+  initial_amount NUMERIC(19,2) NOT NULL,
+  total_amount NUMERIC(19,2) NOT NULL,
+  created_at TIMESTAMP(6) WITHOUT TIME ZONE NOT NULL,
+  updated_at TIMESTAMP(6) WITHOUT TIME ZONE NOT NULL,
+  deleted_at TIMESTAMP (6) WITHOUT TIME ZONE
+);
+
+CREATE INDEX IF NOT EXISTS idx_wallets_deleted_at ON wallets(deleted_at);

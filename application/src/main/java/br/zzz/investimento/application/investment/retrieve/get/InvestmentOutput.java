@@ -1,12 +1,13 @@
 package br.zzz.investimento.application.investment.retrieve.get;
 
 import br.zzz.investimento.domain.investment.Investment;
+import br.zzz.investimento.domain.investment.InvestmentID;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
 public record InvestmentOutput(
-        String id,
+        InvestmentID id,
         Integer annualPeriod,
         BigDecimal amount,
         BigDecimal result,
@@ -17,7 +18,7 @@ public record InvestmentOutput(
 ) {
     public static InvestmentOutput from(final Investment investment) {
         return new InvestmentOutput(
-                investment.getId().getValue(),
+                investment.getId(),
                 investment.getAnnualPeriod(),
                 investment.getAmount(),
                 investment.getResult(),

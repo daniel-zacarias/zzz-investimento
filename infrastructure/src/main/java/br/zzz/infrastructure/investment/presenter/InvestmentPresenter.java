@@ -6,7 +6,7 @@ import br.zzz.investimento.application.investment.retrieve.get.InvestmentOutput;
 public interface InvestmentPresenter {
     static InvestmentResponse present(final InvestmentOutput output) {
         return new InvestmentResponse(
-                output.id(),
+                output.id().getValue(),
                 output.amount().doubleValue(),
                 output.annualPeriod(),
                 output.annualRate().doubleValue(),

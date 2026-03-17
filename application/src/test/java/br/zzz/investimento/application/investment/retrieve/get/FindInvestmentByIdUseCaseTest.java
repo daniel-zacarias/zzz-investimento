@@ -5,6 +5,7 @@ import br.zzz.investimento.domain.exceptions.DomainException;
 import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 import br.zzz.investimento.domain.investment.InvestmentID;
+import br.zzz.investimento.domain.wallet.WalletID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -34,8 +35,9 @@ public class FindInvestmentByIdUseCaseTest extends UseCaseTest {
         final var expectedAnnualPeriod = 5;
         final var expectedAmount = new BigDecimal("1000.0");
         final var expectedAnnualRate = new BigDecimal("0.01");
+        final var walletID = WalletID.unique();
 
-        final var existingInvestment = Investment.newInvestment(expectedAnnualPeriod, expectedAmount, expectedAnnualRate);
+        final var existingInvestment = Investment.newInvestment(expectedAnnualPeriod, expectedAmount, expectedAnnualRate, walletID);
         final var expectedId = existingInvestment.getId().getValue();
 
         when(investmentGateway.findById(InvestmentID.from(expectedId))).thenReturn(Optional.of(existingInvestment));
@@ -45,7 +47,7 @@ public class FindInvestmentByIdUseCaseTest extends UseCaseTest {
 
         // then
         Assertions.assertNotNull(actualOutput);
-        Assertions.assertEquals(expectedId, actualOutput.id());
+        Assertions.assertEquals(expectedId, actualOutput.id().getValue());
         Assertions.assertEquals(expectedAmount, actualOutput.amount());
         Assertions.assertEquals(expectedAnnualPeriod, actualOutput.annualPeriod());
         Assertions.assertEquals(expectedAnnualRate, actualOutput.annualRate());

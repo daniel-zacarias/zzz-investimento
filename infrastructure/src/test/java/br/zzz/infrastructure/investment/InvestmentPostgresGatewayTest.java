@@ -4,6 +4,7 @@ import br.zzz.infrastructure.investment.persistence.InvestmentJpaEntity;
 import br.zzz.infrastructure.investment.persistence.InvestmentRepository;
 import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentID;
+import br.zzz.investimento.domain.wallet.WalletID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -32,7 +33,7 @@ class InvestmentPostgresGatewayTest {
         final var expectedAmount = new BigDecimal("1000.00");
         final var expectedAnnualRate = new BigDecimal("0.10");
 
-        final var investment = Investment.newInvestment(expectedAnnualPeriod, expectedAmount, expectedAnnualRate);
+        final var investment = Investment.newInvestment(expectedAnnualPeriod, expectedAmount, expectedAnnualRate, WalletID.unique());
         final var entity = InvestmentJpaEntity.from(investment);
 
         when(investmentRepository.save(any())).thenReturn(entity);
@@ -68,7 +69,7 @@ class InvestmentPostgresGatewayTest {
         // (1 + 0.10)^2 * 1000 = 1210.00
         final var expectedResult = new BigDecimal("1210.00");
 
-        final var investment = Investment.newInvestment(annualPeriod, amount, annualRate);
+        final var investment = Investment.newInvestment(annualPeriod, amount, annualRate, WalletID.unique());
         final var entity = InvestmentJpaEntity.from(investment);
 
         when(investmentRepository.save(any())).thenReturn(entity);
@@ -87,7 +88,7 @@ class InvestmentPostgresGatewayTest {
 
         assertDoesNotThrow(() -> gateway.deleteById(anId));
 
-        verifyNoInteractions(investmentRepository);
+        verify(investmentRepository, times(1)).deleteById(anId.getValue());
     }
 
     @Test
@@ -97,16 +98,5 @@ class InvestmentPostgresGatewayTest {
         final var actualResult = gateway.findById(anId);
 
         assertTrue(actualResult.isEmpty());
-    }
-
-    @Test
-    void givenAValidInvestment_whenCallsUpdate_thenShouldReturnNull() {
-        final var investment = Investment.newInvestment(3, new BigDecimal("500.00"), new BigDecimal("0.05"));
-
-        final var actualResult = gateway.update(investment);
-
-        assertNull(actualResult);
-
-        verifyNoInteractions(investmentRepository);
     }
 }

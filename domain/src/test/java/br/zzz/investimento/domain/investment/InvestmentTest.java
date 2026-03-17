@@ -123,6 +123,8 @@ class InvestmentTest {
         assertEquals(investment.getAnnualPeriod(), deleted.getAnnualPeriod());
         assertEquals(investment.getAmount(), deleted.getAmount());
         assertEquals(investment.getResult(), deleted.getResult());
+        assertEquals(investment.getAnnualRate(), deleted.getAnnualRate());
+        assertEquals(investment.getWallet(), deleted.getWallet());
     }
 
     @Test

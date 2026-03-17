@@ -6,6 +6,7 @@ import br.zzz.investimento.domain.exceptions.NotificationException;
 import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 import br.zzz.investimento.domain.investment.InvestmentID;
+import br.zzz.investimento.domain.wallet.WalletID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -34,7 +35,7 @@ public class UpdateInvestmentUseCaseTest extends UseCaseTest {
     @Test
     public void givenAValidCommand_whenCallsUpdateInvestment_thenReturnInvestmentID() {
         // given
-        final var existingInvestment = Investment.newInvestment(5, new BigDecimal("1000.0"), new BigDecimal("0.01"));
+        final var existingInvestment = Investment.newInvestment(5, new BigDecimal("1000.0"), new BigDecimal("0.01"), WalletID.unique());
         final var expectedId = existingInvestment.getId().getValue();
         final var expectedAmount = new BigDecimal("2000.0");
         final var expectedAnnualPeriod = 10;
@@ -65,7 +66,7 @@ public class UpdateInvestmentUseCaseTest extends UseCaseTest {
     @Test
     public void givenAnInvalidAnnualPeriod_whenCallsUpdateInvestment_thenReturnNotificationException() {
         // given
-        final var existingInvestment = Investment.newInvestment(5, new BigDecimal("1000.0"), new BigDecimal("0.01"));
+        final var existingInvestment = Investment.newInvestment(5, new BigDecimal("1000.0"), new BigDecimal("0.01"), WalletID.unique());
         final var expectedId = existingInvestment.getId().getValue();
         final var expectedAnnualPeriod = 0;
 

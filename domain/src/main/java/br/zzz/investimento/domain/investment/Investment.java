@@ -4,6 +4,7 @@ import br.zzz.investimento.domain.AggregateRoot;
 import br.zzz.investimento.domain.exceptions.NotificationException;
 import br.zzz.investimento.domain.validation.ValidationHandler;
 import br.zzz.investimento.domain.validation.handler.Notification;
+import br.zzz.investimento.domain.wallet.WalletID;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -19,6 +20,8 @@ public class Investment extends AggregateRoot<InvestmentID> {
 
     private final BigDecimal annualRate;
 
+    private final WalletID wallet;
+
     private final Instant createdAt;
 
     private final Instant updatedAt;
@@ -30,6 +33,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
             final Integer annualPeriod,
             final BigDecimal amount,
             final BigDecimal annualRate,
+            final WalletID wallet,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt) {
@@ -37,6 +41,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
         this.annualPeriod = annualPeriod;
         this.amount = amount;
         this.annualRate = annualRate;
+        this.wallet = wallet;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -49,6 +54,14 @@ public class Investment extends AggregateRoot<InvestmentID> {
             final Integer annualPeriod,
             final BigDecimal amount,
             final BigDecimal annualRate) {
+        return newInvestment(annualPeriod, amount, annualRate, WalletID.unique());
+    }
+
+    public static Investment newInvestment(
+            final Integer annualPeriod,
+            final BigDecimal amount,
+            final BigDecimal annualRate,
+            final WalletID wallet) {
         final var anId = InvestmentID.unique();
         final var now = Instant.now();
         return new Investment(
@@ -56,6 +69,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 annualPeriod,
                 amount,
                 annualRate,
+                wallet,
                 now,
                 now,
                 null);
@@ -67,6 +81,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 investment.annualPeriod,
                 investment.amount,
                 investment.annualRate,
+                investment.wallet,
                 investment.createdAt,
                 investment.updatedAt,
                 investment.deletedAt);
@@ -77,6 +92,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
             final Integer annualPeriod,
             final BigDecimal amount,
             final BigDecimal annualRate,
+            final WalletID wallet,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt) {
@@ -85,6 +101,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 annualPeriod,
                 amount,
                 annualRate,
+                wallet,
                 createdAt,
                 updatedAt,
                 deletedAt);
@@ -111,6 +128,10 @@ public class Investment extends AggregateRoot<InvestmentID> {
         return annualRate;
     }
 
+    public WalletID getWallet() {
+        return wallet;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -132,6 +153,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 annualPeriod,
                 amount,
                 annualRate,
+                this.wallet,
                 this.createdAt,
                 Instant.now(),
                 this.deletedAt);
@@ -143,6 +165,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 this.annualPeriod,
                 this.amount,
                 this.annualRate,
+                this.wallet,
                 this.createdAt,
                 Instant.now(),
                 Instant.now());

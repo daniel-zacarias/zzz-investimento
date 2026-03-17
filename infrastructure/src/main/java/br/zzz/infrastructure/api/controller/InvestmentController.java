@@ -47,7 +47,8 @@ public class InvestmentController implements InvestmentAPI {
         final var command = CreateInvestmentCommand.with(
                 new BigDecimal(request.amount()),
                 request.annualPeriod(),
-                new BigDecimal(request.annualRate()));
+                new BigDecimal(request.annualRate()),
+                request.walletId());
         final var output = createInvestmentUseCase.execute(command);
         return ResponseEntity.created(URI.create("/api/investments/" + output.id())).body(output);
     }

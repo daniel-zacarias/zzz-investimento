@@ -11,6 +11,7 @@ import br.zzz.investimento.application.investment.retrieve.get.FindInvestmentByI
 import br.zzz.investimento.application.investment.update.UpdateInvestmentCommand;
 import br.zzz.investimento.application.investment.update.UpdateInvestmentOutput;
 import br.zzz.investimento.application.investment.update.UpdateInvestmentUseCase;
+import br.zzz.investimento.domain.investment.InvestmentID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,6 +23,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.zzz.infrastructure.investment.persistence.InvestmentRepository;
+import br.zzz.infrastructure.wallet.persistence.WalletRepository;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -65,12 +67,15 @@ class InvestmentAPITest {
         @MockitoBean
         private InvestmentRepository investmentRepository;
 
+        @MockitoBean
+        private WalletRepository walletRepository;
+
         @Test
         void givenAnId_whenCallsGetInvestmentById_thenReturnsInvestment() throws Exception {
-                final var anId = "inv-123";
+                final var anId = InvestmentID.from("inv-123");
                 final var createdAt = Instant.parse("2026-03-13T10:15:30Z");
 
-                when(findInvestmentByIdUseCase.execute(anId)).thenReturn(
+                when(findInvestmentByIdUseCase.execute(anId.getValue())).thenReturn(
                                 new InvestmentOutput(
                                                 anId,
                                                 12,
@@ -81,33 +86,34 @@ class InvestmentAPITest {
                                                 createdAt,
                                                 null));
 
-                mockMvc.perform(get("/investments/{id}", anId))
+                mockMvc.perform(get("/investments/{id}", anId.getValue()))
                                 .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.id").value(anId))
+                                .andExpect(jsonPath("$.id").value(anId.getValue()))
                                 .andExpect(jsonPath("$.amount").value(1000.00))
                                 .andExpect(jsonPath("$.annualPeriod").value(12))
                                 .andExpect(jsonPath("$.annualRate").value(0.01));
 
-                verify(findInvestmentByIdUseCase).execute(anId);
+                verify(findInvestmentByIdUseCase).execute(anId.getValue());
         }
 
         @Test
         void givenAValidBody_whenCallsCreateInvestment_thenReturnsCreated() throws Exception {
-                final var expectedId = "inv-234";
+                final var expectedId =  InvestmentID.from("inv-234");
                 when(createInvestmentUseCase.execute(any(CreateInvestmentCommand.class)))
-                                .thenReturn(CreateInvestmentOutput.from(expectedId));
+                                .thenReturn(CreateInvestmentOutput.from(expectedId.getValue()));
 
                 final var body = new CreateInvestmentRequest(
                                 "1000.00",
                                 12,
-                                "0.01"
+                                "0.01",
+                                expectedId.getValue()
                 );
 
                 mockMvc.perform(post("/investments")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(body)))
                                 .andExpect(status().isCreated())
-                                .andExpect(jsonPath("$.id").value(expectedId));
+                                .andExpect(jsonPath("$.id").value(expectedId.getValue()));
 
                 final var commandCaptor = ArgumentCaptor.forClass(CreateInvestmentCommand.class);
                 verify(createInvestmentUseCase).execute(commandCaptor.capture());
