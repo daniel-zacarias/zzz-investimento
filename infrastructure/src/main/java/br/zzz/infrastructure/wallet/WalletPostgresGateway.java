@@ -21,7 +21,6 @@ public class WalletPostgresGateway implements WalletGateway {
 
     @Override
     public Optional<Wallet> findWalletByUserId(final UserID userID) {
-        Objects.requireNonNull(userID);
         return walletRepository.findByUserId(userID.getValue())
                 .map(WalletJpaEntity::toAggregate);
     }

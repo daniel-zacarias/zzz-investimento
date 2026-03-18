@@ -5,8 +5,10 @@ import br.zzz.infrastructure.investment.persistence.InvestmentRepository;
 import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 import br.zzz.investimento.domain.investment.InvestmentID;
+import br.zzz.investimento.domain.wallet.WalletID;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -36,10 +38,15 @@ public class InvestmentPostgresGateway implements InvestmentGateway {
     }
 
     @Override
+    public List<Investment> findAllByWalletId(final WalletID walletId) {
+        Objects.requireNonNull(walletId);
+        return investmentRepository.findAllByWalletId(walletId.getValue()).stream()
+                .map(InvestmentJpaEntity::toAggregate)
+                .toList();
+    }
+
+    @Override
     public Investment update(Investment investment) {
-        if(!investmentRepository.existsById(investment.getId().getValue())){
-            throw new IllegalArgumentException("Investment with ID %s not found".formatted(investment.getId().getValue()));
-        }
         return save(investment);
     }
 
