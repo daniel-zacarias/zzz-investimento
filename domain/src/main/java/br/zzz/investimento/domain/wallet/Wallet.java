@@ -7,10 +7,8 @@ import br.zzz.investimento.domain.user.UserID;
 import br.zzz.investimento.domain.validation.ValidationHandler;
 import br.zzz.investimento.domain.validation.handler.Notification;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -19,10 +17,6 @@ public class Wallet extends AggregateRoot<WalletID> {
     private final UserID userId;
 
     private final Set<InvestmentID> investments;
-
-    private final BigDecimal initialAmount;
-
-    private final BigDecimal totalAmount;
 
     private final Instant createdAt;
 
@@ -34,16 +28,12 @@ public class Wallet extends AggregateRoot<WalletID> {
             final WalletID walletID,
             final UserID userId,
             final Set<InvestmentID> investments,
-            final BigDecimal initialAmount,
-            final BigDecimal totalAmount,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt) {
         super(walletID);
         this.userId = userId;
         this.investments = investments;
-        this.initialAmount = initialAmount;
-        this.totalAmount = totalAmount;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -53,11 +43,9 @@ public class Wallet extends AggregateRoot<WalletID> {
 
     public static Wallet newWallet(
             final UserID userId,
-            final Set<InvestmentID> investments,
-            final BigDecimal initialAmount,
-            final BigDecimal totalAmount) {
+            final Set<InvestmentID> investments) {
         var aValidation = Notification.create();
-        WalletValidator.validate(userId, investments, initialAmount, totalAmount, aValidation);
+        WalletValidator.validate(userId, investments, aValidation);
         if (aValidation.hasError()) {
             throw new NotificationException("Wallet validation failed", aValidation);
         }
@@ -65,8 +53,6 @@ public class Wallet extends AggregateRoot<WalletID> {
                 WalletID.unique(),
                 userId,
                 investments,
-                initialAmount,
-                totalAmount,
                 Instant.now(),
                 Instant.now(),
                 null);
@@ -76,8 +62,6 @@ public class Wallet extends AggregateRoot<WalletID> {
             final WalletID walletID,
             final UserID userId,
             final Set<InvestmentID> investmentIds,
-            final BigDecimal initialAmount,
-            final BigDecimal totalAmount,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt) {
@@ -85,23 +69,9 @@ public class Wallet extends AggregateRoot<WalletID> {
                 walletID,
                 userId,
                 investmentIds,
-                initialAmount,
-                totalAmount,
                 createdAt,
                 updatedAt,
                 deletedAt);
-    }
-
-    public Wallet delete() {
-        return Wallet.with(
-                this.id,
-                this.userId,
-                this.investments,
-                this.initialAmount,
-                this.totalAmount,
-                this.createdAt,
-                Instant.now(),
-                Instant.now());
     }
 
     @Override
@@ -131,13 +101,6 @@ public class Wallet extends AggregateRoot<WalletID> {
         return Collections.unmodifiableSet(investments);
     }
 
-    public BigDecimal getInitialAmount() {
-        return initialAmount;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
 
     public Instant getCreatedAt() {
         return createdAt;

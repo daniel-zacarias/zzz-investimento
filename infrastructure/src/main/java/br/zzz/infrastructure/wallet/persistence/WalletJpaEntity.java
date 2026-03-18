@@ -11,11 +11,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,11 +36,6 @@ public class WalletJpaEntity {
     @OneToMany(mappedBy = "wallet", fetch = FetchType.LAZY)
     private Set<InvestmentJpaEntity> investments;
 
-    @Column(name = "initial_amount", nullable = false, precision = 19, scale = 2)
-    private BigDecimal initialAmount;
-
-    @Column(name = "total_amount", nullable = false, precision = 19, scale = 2)
-    private BigDecimal totalAmount;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP(6)")
     private Instant createdAt;
@@ -59,16 +52,12 @@ public class WalletJpaEntity {
     public WalletJpaEntity(
             final String id,
             final String userId,
-            final BigDecimal initialAmount,
-            final BigDecimal totalAmount,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt
     ) {
         this.id = id;
         this.userId = userId;
-        this.initialAmount = initialAmount;
-        this.totalAmount = totalAmount;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -78,8 +67,6 @@ public class WalletJpaEntity {
         final var walletJpa = new WalletJpaEntity(
                 entity.getId().getValue(),
                 entity.getUserId().getValue(),
-                entity.getInitialAmount(),
-                entity.getTotalAmount(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
                 entity.getDeletedAt()
@@ -111,8 +98,6 @@ public class WalletJpaEntity {
                 WalletID.from(getId()),
                 UserID.from(getUserId()),
                 investmentIdSet,
-                getInitialAmount(),
-                getTotalAmount(),
                 getCreatedAt(),
                 getUpdatedAt(),
                 getDeletedAt()
@@ -156,21 +141,6 @@ public class WalletJpaEntity {
     }
 
 
-    public BigDecimal getInitialAmount() {
-        return initialAmount;
-    }
-
-    public void setInitialAmount(BigDecimal initialAmount) {
-        this.initialAmount = initialAmount;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
 
     public Instant getCreatedAt() {
         return createdAt;

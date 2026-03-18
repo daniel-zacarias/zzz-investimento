@@ -13,7 +13,6 @@ public interface WalletPresenter {
                 output.id().getValue(),
                 output.userId(),
                 output.investments().stream().map(InvestmentID::getValue).collect(Collectors.toSet()),
-                output.initialAmount().doubleValue(),
                 output.totalAmount().doubleValue(),
                 output.createdAt() != null ? output.createdAt().toString() : null,
                 output.updatedAt() != null ? output.updatedAt().toString() : null,

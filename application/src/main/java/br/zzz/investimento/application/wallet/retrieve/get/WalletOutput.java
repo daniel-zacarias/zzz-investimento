@@ -12,19 +12,17 @@ public record WalletOutput(
         WalletID id,
         String userId,
         Set<InvestmentID> investments,
-        BigDecimal initialAmount,
         BigDecimal totalAmount,
         Instant createdAt,
         Instant updatedAt,
         Instant deletedAt
 ) {
-    public static WalletOutput from(final Wallet wallet) {
+    public static WalletOutput from(final Wallet wallet, final BigDecimal totalAmount) {
         return new WalletOutput(
                 wallet.getId(),
                 wallet.getUserId().getValue(),
                 wallet.getInvestments(),
-                wallet.getInitialAmount(),
-                wallet.getTotalAmount(),
+                totalAmount,
                 wallet.getCreatedAt(),
                 wallet.getUpdatedAt(),
                 wallet.getDeletedAt()

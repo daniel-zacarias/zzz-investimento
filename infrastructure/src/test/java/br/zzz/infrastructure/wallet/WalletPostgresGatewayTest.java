@@ -35,9 +35,7 @@ class WalletPostgresGatewayTest {
 
         final var wallet = Wallet.newWallet(
                 aUserId,
-                Set.of(inv1, inv2),
-                new BigDecimal("1000.00"),
-                new BigDecimal("1500.00")
+                Set.of(inv1, inv2)
         );
 
         when(walletRepository.findByUserId(aUserId.getValue()))
@@ -51,8 +49,6 @@ class WalletPostgresGatewayTest {
         assertEquals(wallet.getId().getValue(), actual.getId().getValue());
         assertEquals(wallet.getUserId().getValue(), actual.getUserId().getValue());
         assertEquals(wallet.getInvestments().size(), actual.getInvestments().size());
-        assertEquals(0, wallet.getInitialAmount().compareTo(actual.getInitialAmount()));
-        assertEquals(0, wallet.getTotalAmount().compareTo(actual.getTotalAmount()));
 
         verify(walletRepository, times(1)).findByUserId(aUserId.getValue());
     }

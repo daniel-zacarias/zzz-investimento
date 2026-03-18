@@ -8,7 +8,6 @@ public record WalletResponse(
         @JsonProperty("id") String id,
         @JsonProperty("userId") String userId,
         @JsonProperty("investments") Set<String> investments,
-        @JsonProperty("initialAmount") Double initialAmount,
         @JsonProperty("totalAmount") Double totalAmount,
         @JsonProperty("createdAt") String createdAt,
         @JsonProperty("updatedAt") String updatedAt,

@@ -53,7 +53,6 @@ class WalletAPITest {
                         WalletID.from("wallet-1"),
                         aUserId,
                         Set.of(InvestmentID.from("inv-1"), InvestmentID.from("inv-2")),
-                        new BigDecimal("1000.00"),
                         new BigDecimal("1500.00"),
                         createdAt,
                         createdAt,
@@ -65,7 +64,6 @@ class WalletAPITest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("wallet-1"))
                 .andExpect(jsonPath("$.userId").value(aUserId))
-                .andExpect(jsonPath("$.initialAmount").value(1000.0))
                 .andExpect(jsonPath("$.totalAmount").value(1500.0));
 
         verify(findWalletsByUserIdUseCase).execute(aUserId);
