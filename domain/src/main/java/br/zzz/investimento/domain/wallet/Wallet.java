@@ -98,7 +98,7 @@ public class Wallet extends AggregateRoot<WalletID> {
     }
 
     public Set<InvestmentID> getInvestments() {
-        return Collections.unmodifiableSet(investments);
+        return investments == null ? null : Collections.unmodifiableSet(investments);
     }
 
 

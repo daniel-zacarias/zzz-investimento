@@ -28,7 +28,6 @@ public class WalletValidator extends Validator {
             final ValidationHandler aHandler) {
         checkNotNull(userId, "User ID should not be null", aHandler);
         checkNotNull(investmentIds, "Investment IDs should not be null", aHandler);
-        checkNotEmpty(investmentIds, "Investment IDs should not be empty", aHandler);
     }
 
     private void checkNotNull(final Object anObject, final String message) {
@@ -39,12 +38,6 @@ public class WalletValidator extends Validator {
 
     private static void checkNotNull(final Object anObject, final String message, final ValidationHandler aHandler) {
         if (anObject == null) {
-            aHandler.append(new Error(message));
-        }
-    }
-
-    private static void checkNotEmpty(final Set<?> aList, final String message, final ValidationHandler aHandler) {
-        if (aList == null || aList.isEmpty()) {
             aHandler.append(new Error(message));
         }
     }
