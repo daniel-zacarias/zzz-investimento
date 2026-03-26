@@ -2,12 +2,12 @@ package br.zzz.investimento.domain.investment;
 
 import br.zzz.investimento.domain.AggregateRoot;
 import br.zzz.investimento.domain.exceptions.NotificationException;
+import br.zzz.investimento.domain.investment.calculation.InvestmentResultCalculator;
 import br.zzz.investimento.domain.validation.ValidationHandler;
 import br.zzz.investimento.domain.validation.handler.Notification;
 import br.zzz.investimento.domain.wallet.WalletID;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 
 public class Investment extends AggregateRoot<InvestmentID> {
@@ -28,6 +28,7 @@ public class Investment extends AggregateRoot<InvestmentID> {
 
     private final Instant deletedAt;
 
+
     protected Investment(
             final InvestmentID investmentID,
             final Integer annualPeriod,
@@ -37,17 +38,39 @@ public class Investment extends AggregateRoot<InvestmentID> {
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt) {
+        this(
+                investmentID,
+                annualPeriod,
+                amount,
+                annualRate,
+                calculateResult(annualPeriod, amount, annualRate),
+                wallet,
+                createdAt,
+                updatedAt,
+                deletedAt);
+    }
+
+    protected Investment(
+            final InvestmentID investmentID,
+            final Integer annualPeriod,
+            final BigDecimal amount,
+            final BigDecimal annualRate,
+            final BigDecimal result,
+            final WalletID wallet,
+            final Instant createdAt,
+            final Instant updatedAt,
+            final Instant deletedAt) {
         super(investmentID);
         this.annualPeriod = annualPeriod;
         this.amount = amount;
         this.annualRate = annualRate;
+        this.result = result;
         this.wallet = wallet;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
-
         selfValidate();
-        this.result = this.calculate();
+
     }
 
     public static Investment newInvestment(
@@ -75,12 +98,13 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 null);
     }
 
-    public static Investment from(Investment investment) {
+    public static Investment from(final Investment investment) {
         return new Investment(
                 investment.getId(),
                 investment.annualPeriod,
                 investment.amount,
                 investment.annualRate,
+                investment.result,
                 investment.wallet,
                 investment.createdAt,
                 investment.updatedAt,
@@ -101,6 +125,28 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 annualPeriod,
                 amount,
                 annualRate,
+                wallet,
+                createdAt,
+                updatedAt,
+                deletedAt);
+    }
+
+    public static Investment with(
+            final InvestmentID anId,
+            final Integer annualPeriod,
+            final BigDecimal amount,
+            final BigDecimal annualRate,
+            final BigDecimal result,
+            final WalletID wallet,
+            final Instant createdAt,
+            final Instant updatedAt,
+            final Instant deletedAt) {
+        return new Investment(
+                anId,
+                annualPeriod,
+                amount,
+                annualRate,
+                result,
                 wallet,
                 createdAt,
                 updatedAt,
@@ -171,10 +217,14 @@ public class Investment extends AggregateRoot<InvestmentID> {
                 Instant.now());
     }
 
-    private BigDecimal calculate() {
-        BigDecimal compound = BigDecimal.ONE.add(annualRate).pow(annualPeriod);
-        BigDecimal finalAmount = amount.multiply(compound);
-        return finalAmount.setScale(2, RoundingMode.HALF_UP);
+    private static BigDecimal calculateResult(
+            final Integer annualPeriod,
+            final BigDecimal amount,
+            final BigDecimal annualRate) {
+        if (annualPeriod == null || annualPeriod <= 0 || amount == null || annualRate == null) {
+            return BigDecimal.ZERO;
+        }
+        return InvestmentResultCalculator.create().calculate(annualPeriod, amount, annualRate);
     }
 
     private void selfValidate() {

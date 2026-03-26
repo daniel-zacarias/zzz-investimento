@@ -97,6 +97,7 @@ public class InvestmentJpaEntity {
                 getAnnualPeriod(),
                 BigDecimal.valueOf(getAmount()),
                 BigDecimal.valueOf(getAnnualRate()),
+                BigDecimal.valueOf(getResult()),
                 WalletID.from(getWalletId()),
                 getCreatedAt(),
                 getUpdatedAt(),
