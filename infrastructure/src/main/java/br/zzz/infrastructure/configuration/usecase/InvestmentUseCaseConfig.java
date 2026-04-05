@@ -1,5 +1,6 @@
 package br.zzz.infrastructure.configuration.usecase;
 
+import br.zzz.investimento.domain.wallet.WalletGateway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,17 +14,23 @@ import br.zzz.investimento.application.investment.update.DefaultUpdateInvestment
 import br.zzz.investimento.application.investment.update.UpdateInvestmentUseCase;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 
+import java.util.Objects;
+
 @Configuration
 public class InvestmentUseCaseConfig {
     private final InvestmentGateway investmentGateway;
 
-    public InvestmentUseCaseConfig(InvestmentGateway investmentGateway) {
-        this.investmentGateway = investmentGateway;
+    private final WalletGateway walletGateway;
+
+    public InvestmentUseCaseConfig(final InvestmentGateway investmentGateway,
+                                   final WalletGateway walletGateway) {
+        this.investmentGateway = Objects.requireNonNull(investmentGateway);
+        this.walletGateway = Objects.requireNonNull(walletGateway);
     }
 
     @Bean
     public CreateInvestmentUseCase createInvestmentUseCase() {
-        return new DefaultCreateInvestmentUseCase(investmentGateway);
+        return new DefaultCreateInvestmentUseCase(investmentGateway, walletGateway);
     }
 
     @Bean

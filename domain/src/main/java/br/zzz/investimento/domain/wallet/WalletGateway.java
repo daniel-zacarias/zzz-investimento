@@ -6,6 +6,8 @@ import java.util.Optional;
 
 public interface WalletGateway {
 
+    boolean existsById(WalletID id);
+
     Optional<Wallet> findWalletByUserId(UserID userID);
 
 }

@@ -5,6 +5,7 @@ import br.zzz.infrastructure.wallet.persistence.WalletRepository;
 import br.zzz.investimento.domain.user.UserID;
 import br.zzz.investimento.domain.wallet.Wallet;
 import br.zzz.investimento.domain.wallet.WalletGateway;
+import br.zzz.investimento.domain.wallet.WalletID;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -17,6 +18,11 @@ public class WalletPostgresGateway implements WalletGateway {
 
     public WalletPostgresGateway(final WalletRepository walletRepository) {
         this.walletRepository = Objects.requireNonNull(walletRepository);
+    }
+
+    @Override
+    public boolean existsById(WalletID id) {
+        return walletRepository.existsById(id.getValue());
     }
 
     @Override
