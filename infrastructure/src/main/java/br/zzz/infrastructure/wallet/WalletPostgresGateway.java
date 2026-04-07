@@ -7,6 +7,7 @@ import br.zzz.investimento.domain.wallet.Wallet;
 import br.zzz.investimento.domain.wallet.WalletGateway;
 import br.zzz.investimento.domain.wallet.WalletID;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -21,6 +22,12 @@ public class WalletPostgresGateway implements WalletGateway {
     }
 
     @Override
+    @Transactional
+    public Wallet create(Wallet wallet) {
+        return save(wallet);
+    }
+
+    @Override
     public boolean existsById(WalletID id) {
         return walletRepository.existsById(id.getValue());
     }
@@ -29,5 +36,9 @@ public class WalletPostgresGateway implements WalletGateway {
     public Optional<Wallet> findWalletByUserId(final UserID userID) {
         return walletRepository.findByUserId(userID.getValue())
                 .map(WalletJpaEntity::toAggregate);
+    }
+
+    private Wallet save(final Wallet wallet) {
+        return walletRepository.save(WalletJpaEntity.from(wallet)).toAggregate();
     }
 }

@@ -42,6 +42,22 @@ public class Wallet extends AggregateRoot<WalletID> {
     }
 
     public static Wallet newWallet(
+            final UserID userId) {
+        var aValidation = Notification.create();
+        WalletValidator.validate(userId, Set.of(), aValidation);
+        if (aValidation.hasError()) {
+            throw new NotificationException("Wallet validation failed", aValidation);
+        }
+        return new Wallet(
+                WalletID.unique(),
+                userId,
+                Set.of(),
+                Instant.now(),
+                Instant.now(),
+                null);
+    }
+
+    public static Wallet newWallet(
             final UserID userId,
             final Set<InvestmentID> investments) {
         var aValidation = Notification.create();
