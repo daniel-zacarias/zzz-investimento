@@ -2,7 +2,6 @@ package br.zzz.infrastructure.api;
 
 import br.zzz.infrastructure.investment.persistence.InvestmentRepository;
 import br.zzz.infrastructure.wallet.WalletPostgresGateway;
-import br.zzz.infrastructure.wallet.persistence.WalletRepository;
 import br.zzz.investimento.application.wallet.retrieve.get.FindWalletsByUserIdUseCase;
 import br.zzz.investimento.application.wallet.retrieve.get.WalletOutput;
 import br.zzz.investimento.domain.investment.InvestmentID;
@@ -16,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 
 import static org.mockito.Mockito.verify;
@@ -44,27 +44,32 @@ class WalletAPITest {
     private InvestmentRepository investmentRepository;
 
     @Test
-    void givenAUserId_whenCallsGetWalletByUserId_thenReturnsWallet() throws Exception {
+    void givenAUserId_whenCallsGetWalletByUserId_thenReturnsWallets() throws Exception {
         final var aUserId = "user-123";
+        final var aWalletName = "Renda Fixa";
         final var createdAt = Instant.parse("2026-03-13T10:15:30Z");
 
         when(findWalletsByUserIdUseCase.execute(aUserId)).thenReturn(
-                new WalletOutput(
-                        WalletID.from("wallet-1"),
-                        aUserId,
-                        Set.of(InvestmentID.from("inv-1"), InvestmentID.from("inv-2")),
-                        new BigDecimal("1500.00"),
-                        createdAt,
-                        createdAt,
-                        null
+                List.of(
+                        new WalletOutput(
+                                WalletID.from("wallet-1"),
+                                aUserId,
+                                aWalletName,
+                                Set.of(InvestmentID.from("inv-1"), InvestmentID.from("inv-2")),
+                                new BigDecimal("1500.00"),
+                                createdAt,
+                                createdAt,
+                                null
+                        )
                 )
         );
 
         mockMvc.perform(get("/wallets/{userId}", aUserId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("wallet-1"))
-                .andExpect(jsonPath("$.userId").value(aUserId))
-                .andExpect(jsonPath("$.totalAmount").value(1500.0));
+                .andExpect(jsonPath("$[0].id").value("wallet-1"))
+                .andExpect(jsonPath("$[0].userId").value(aUserId))
+                .andExpect(jsonPath("$[0].name").value(aWalletName))
+                .andExpect(jsonPath("$[0].totalAmount").value(1500.0));
 
         verify(findWalletsByUserIdUseCase).execute(aUserId);
     }

@@ -14,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class WalletTest {
 
+    private static final String WALLET_NAME = "Geral";
+
     @Test
     void givenNullValue_whenFrom_thenThrowsNullPointerException() {
         assertThrows(NullPointerException.class, () -> WalletID.from(null));
@@ -74,11 +76,13 @@ class WalletTest {
     void givenValidValues_whenNewWallet_thenCreate() {
         final var userId = UserID.unique();
         final var investments = new HashSet<>(Set.of(InvestmentID.unique(), InvestmentID.unique()));
+        final var walletName = "Renda Fixa";
 
-        final var wallet = Wallet.newWallet(userId, investments);
+        final var wallet = Wallet.newWallet(userId, walletName, investments);
 
         assertNotNull(wallet.getId());
         assertEquals(userId, wallet.getUserId());
+        assertEquals(walletName, wallet.getName());
         assertEquals(investments, wallet.getInvestments());
         assertNotNull(wallet.getCreatedAt());
         assertNotNull(wallet.getUpdatedAt());
@@ -90,9 +94,10 @@ class WalletTest {
 
     @Test
     void givenEmptyInvestments_whenNewWallet_thenCreateWithEmptySet() {
-        final var wallet = Wallet.newWallet(UserID.unique(), Set.of());
+        final var wallet = Wallet.newWallet(UserID.unique(), WALLET_NAME);
 
         assertNotNull(wallet.getId());
+        assertEquals(WALLET_NAME, wallet.getName());
         assertTrue(wallet.getInvestments().isEmpty());
     }
 
@@ -100,7 +105,7 @@ class WalletTest {
     void givenNullUserId_whenNewWallet_thenThrowsNotificationException() {
         final var exception = assertThrows(
                 NotificationException.class,
-                () -> Wallet.newWallet(null, Set.of(InvestmentID.unique())));
+                () -> Wallet.newWallet(null, WALLET_NAME, Set.of(InvestmentID.unique())));
 
         assertEquals("Wallet validation failed", exception.getMessage());
         assertNotNull(exception.getErrors());
@@ -112,12 +117,36 @@ class WalletTest {
     void givenNullInvestments_whenNewWallet_thenThrowsNotificationException() {
         final var exception = assertThrows(
                 NotificationException.class,
-                () -> Wallet.newWallet(UserID.unique(), null));
+                () -> Wallet.newWallet(UserID.unique(), WALLET_NAME, null));
 
         assertEquals("Wallet validation failed", exception.getMessage());
         assertNotNull(exception.getErrors());
         assertEquals(1, exception.getErrors().size());
         assertEquals("Investment IDs should not be null", exception.getErrors().get(0).message());
+    }
+
+    @Test
+    void givenNullName_whenNewWallet_thenThrowsNotificationException() {
+        final var exception = assertThrows(
+                NotificationException.class,
+                () -> Wallet.newWallet(UserID.unique(), null, Set.of()));
+
+        assertEquals("Wallet validation failed", exception.getMessage());
+        assertNotNull(exception.getErrors());
+        assertEquals(1, exception.getErrors().size());
+        assertEquals("Wallet name should not be null", exception.getErrors().get(0).message());
+    }
+
+    @Test
+    void givenBlankName_whenNewWallet_thenThrowsNotificationException() {
+        final var exception = assertThrows(
+                NotificationException.class,
+                () -> Wallet.newWallet(UserID.unique(), "  ", Set.of()));
+
+        assertEquals("Wallet validation failed", exception.getMessage());
+        assertNotNull(exception.getErrors());
+        assertEquals(1, exception.getErrors().size());
+        assertEquals("Wallet name should not be blank", exception.getErrors().get(0).message());
     }
 
     @Test
@@ -127,6 +156,7 @@ class WalletTest {
                 () -> Wallet.with(
                         WalletID.unique(),
                         null,
+                        WALLET_NAME,
                         Set.of(),
                         Instant.now(),
                         Instant.now(),
@@ -145,6 +175,7 @@ class WalletTest {
                 () -> Wallet.with(
                         WalletID.unique(),
                         UserID.unique(),
+                        WALLET_NAME,
                         null,
                         Instant.now(),
                         Instant.now(),
@@ -158,11 +189,12 @@ class WalletTest {
 
     @Test
     void givenSameId_whenCompare_thenEqualsAndHashCode() {
-        final var wallet = Wallet.newWallet(UserID.unique(), Set.of());
+        final var wallet = Wallet.newWallet(UserID.unique(), WALLET_NAME);
 
         final var other = Wallet.with(
                 wallet.getId(),
                 UserID.unique(),
+                "Outra",
                 Set.of(),
                 wallet.getCreatedAt(),
                 wallet.getUpdatedAt(),
@@ -176,7 +208,7 @@ class WalletTest {
     void givenNullUserId_whenValidate_thenAppendError() {
         final var notification = Notification.create();
 
-        WalletValidator.validate(null, Set.of(InvestmentID.unique()), notification);
+        WalletValidator.validate(null, WALLET_NAME, Set.of(InvestmentID.unique()), notification);
 
         assertTrue(notification.hasError());
         assertEquals(1, notification.getErrors().size());
@@ -187,7 +219,7 @@ class WalletTest {
     void givenNullInvestments_whenValidate_thenAppendError() {
         final var notification = Notification.create();
 
-        WalletValidator.validate(UserID.unique(), null, notification);
+        WalletValidator.validate(UserID.unique(), WALLET_NAME, null, notification);
 
         assertTrue(notification.hasError());
         assertEquals(1, notification.getErrors().size());
@@ -198,7 +230,7 @@ class WalletTest {
     void givenEmptyInvestments_whenValidate_thenNoError() {
         final var notification = Notification.create();
 
-        WalletValidator.validate(UserID.unique(), Set.of(), notification);
+        WalletValidator.validate(UserID.unique(), WALLET_NAME, Set.of(), notification);
 
         assertFalse(notification.hasError());
     }

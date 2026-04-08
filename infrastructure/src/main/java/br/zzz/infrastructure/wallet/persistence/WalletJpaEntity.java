@@ -33,6 +33,9 @@ public class WalletJpaEntity {
     @Column(name = "user_id", nullable = false)
     private String userId;
 
+    @Column(name = "name", nullable = false)
+    private String name;
+
     @OneToMany(mappedBy = "wallet", fetch = FetchType.LAZY)
     private Set<InvestmentJpaEntity> investments;
 
@@ -52,12 +55,14 @@ public class WalletJpaEntity {
     public WalletJpaEntity(
             final String id,
             final String userId,
+            final String name,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt
     ) {
         this.id = id;
         this.userId = userId;
+        this.name = name;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -67,6 +72,7 @@ public class WalletJpaEntity {
         final var walletJpa = new WalletJpaEntity(
                 entity.getId().getValue(),
                 entity.getUserId().getValue(),
+                entity.getName(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
                 entity.getDeletedAt()
@@ -97,6 +103,7 @@ public class WalletJpaEntity {
         return Wallet.with(
                 WalletID.from(getId()),
                 UserID.from(getUserId()),
+                getName(),
                 investmentIdSet,
                 getCreatedAt(),
                 getUpdatedAt(),
@@ -130,6 +137,14 @@ public class WalletJpaEntity {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
     }
 
     public Set<InvestmentJpaEntity> getInvestments() {

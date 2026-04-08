@@ -1,6 +1,5 @@
 package br.zzz.investimento.application.wallet.retrieve.get;
 
-import br.zzz.investimento.domain.exceptions.NotFoundException;
 import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 import br.zzz.investimento.domain.investment.InvestmentID;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,13 +20,14 @@ import static org.mockito.Mockito.*;
 class FindWalletsByUserIdUseCaseTest {
 
     @Test
-    void givenValidCommand_whenFindWalletByUserId_thenReturnWalletOutput() {
+    void givenValidCommand_whenFindWalletsByUserId_thenReturnWalletOutputs() {
         // given
         final var userId = UUID.randomUUID().toString();
         final var investments = Set.of(InvestmentID.unique(), InvestmentID.unique());
 
         final var wallet = Wallet.newWallet(
                 UserID.from(userId),
+                "Renda Fixa",
                 investments
         );
 
@@ -36,10 +35,9 @@ class FindWalletsByUserIdUseCaseTest {
         final var inv2 = Investment.newInvestment(2, new BigDecimal("1000.00"), new BigDecimal("0.10"), wallet.getId()); // 1210.00
         final var expectedTotalAmount = new BigDecimal("2310.00");
 
-
         final var gatewayMock = mock(WalletGateway.class);
-        when(gatewayMock.findWalletByUserId(any(UserID.class)))
-                .thenReturn(Optional.of(wallet));
+        when(gatewayMock.findAllByUserId(any(UserID.class)))
+                .thenReturn(List.of(wallet));
 
         final var investmentGatewayMock = mock(InvestmentGateway.class);
         when(investmentGatewayMock.findAllByWalletId(eq(wallet.getId())))
@@ -48,38 +46,47 @@ class FindWalletsByUserIdUseCaseTest {
         final var useCase = new DefaultFindWalletsByUserIdUseCase(gatewayMock, investmentGatewayMock);
 
         // when
-        final var output = useCase.execute(userId);
+        final var outputs = useCase.execute(userId);
 
         // then
-        assertNotNull(output);
+        assertNotNull(outputs);
+        assertEquals(1, outputs.size());
+
+        final var output = outputs.get(0);
         assertEquals(wallet.getId(), output.id());
         assertEquals(userId, output.userId());
+        assertEquals(wallet.getName(), output.name());
         assertEquals(investments, output.investments());
         assertEquals(expectedTotalAmount, output.totalAmount());
-        verify(gatewayMock, times(1)).findWalletByUserId(any(UserID.class));
+        verify(gatewayMock, times(1)).findAllByUserId(any(UserID.class));
         verify(investmentGatewayMock, times(1)).findAllByWalletId(eq(wallet.getId()));
     }
 
     @Test
-    void givenInvalidUserId_whenFindWalletByUserId_thenThrowNotFoundException() {
+    void givenInvalidUserId_whenFindWalletsByUserId_thenReturnEmptyList() {
         // given
         final var userId = UUID.randomUUID().toString();
 
         final var gatewayMock = mock(WalletGateway.class);
-        when(gatewayMock.findWalletByUserId(any(UserID.class)))
-                .thenReturn(Optional.empty());
+        when(gatewayMock.findAllByUserId(any(UserID.class)))
+                .thenReturn(List.of());
 
         final var investmentGatewayMock = mock(InvestmentGateway.class);
 
         final var useCase = new DefaultFindWalletsByUserIdUseCase(gatewayMock, investmentGatewayMock);
 
-        // when & then
-        assertThrows(NotFoundException.class, () -> useCase.execute(userId));
-        verify(gatewayMock, times(1)).findWalletByUserId(any(UserID.class));
+        // when
+        final var outputs = useCase.execute(userId);
+
+        // then
+        assertNotNull(outputs);
+        assertTrue(outputs.isEmpty());
+        verify(gatewayMock, times(1)).findAllByUserId(any(UserID.class));
+        verify(investmentGatewayMock, never()).findAllByWalletId(any());
     }
 
     @Test
-    void givenNullCommand_whenFindWalletByUserId_thenThrowNullPointerException() {
+    void givenNullCommand_whenFindWalletsByUserId_thenThrowNullPointerException() {
         // given
         final var gatewayMock = mock(WalletGateway.class);
         final var investmentGatewayMock = mock(InvestmentGateway.class);
@@ -87,7 +94,7 @@ class FindWalletsByUserIdUseCaseTest {
 
         // when & then
         assertThrows(NullPointerException.class, () -> useCase.execute(null));
-        verify(gatewayMock, never()).findWalletByUserId(any());
+        verify(gatewayMock, never()).findAllByUserId(any());
     }
 
     @Test
@@ -98,18 +105,19 @@ class FindWalletsByUserIdUseCaseTest {
     }
 
     @Test
-    void givenValidCommand_whenFindWalletByUserId_thenUseCorrectUserId() {
+    void givenValidCommand_whenFindWalletsByUserId_thenUseCorrectUserId() {
         // given
         final var userId = UUID.randomUUID().toString();
         final var investments = Set.of(InvestmentID.unique());
         final var wallet = Wallet.newWallet(
                 UserID.from(userId),
+                "Renda Fixa",
                 investments
         );
 
         final var gatewayMock = mock(WalletGateway.class);
-        when(gatewayMock.findWalletByUserId(any(UserID.class)))
-                .thenReturn(Optional.of(wallet));
+        when(gatewayMock.findAllByUserId(any(UserID.class)))
+                .thenReturn(List.of(wallet));
 
         final var investmentGatewayMock = mock(InvestmentGateway.class);
         when(investmentGatewayMock.findAllByWalletId(any())).thenReturn(List.of());
@@ -120,6 +128,6 @@ class FindWalletsByUserIdUseCaseTest {
         useCase.execute(userId);
 
         // then
-        verify(gatewayMock, times(1)).findWalletByUserId(eq(UserID.from(userId)));
+        verify(gatewayMock, times(1)).findAllByUserId(eq(UserID.from(userId)));
     }
 }

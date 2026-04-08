@@ -2,7 +2,7 @@ package br.zzz.investimento.domain.wallet;
 
 import br.zzz.investimento.domain.user.UserID;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface WalletGateway {
 
@@ -10,7 +10,7 @@ public interface WalletGateway {
 
     boolean existsById(WalletID id);
 
-    Optional<Wallet> findWalletByUserId(UserID userID);
+    List<Wallet> findAllByUserId(UserID userID);
 
 }
 

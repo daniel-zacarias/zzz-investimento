@@ -11,8 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,42 +27,47 @@ class WalletPostgresGatewayTest {
     private WalletPostgresGateway gateway;
 
     @Test
-    void givenAValidUserId_whenCallsFindWalletByUserId_thenShouldReturnWallet() {
+    void givenAValidUserId_whenCallsFindAllByUserId_thenShouldReturnWallets() {
         final var aUserId = UserID.unique();
         final var inv1 = InvestmentID.unique();
         final var inv2 = InvestmentID.unique();
 
         final var wallet = Wallet.newWallet(
                 aUserId,
+                "Renda Fixa",
                 Set.of(inv1, inv2)
         );
 
-        when(walletRepository.findByUserId(aUserId.getValue()))
-                .thenReturn(Optional.of(WalletJpaEntity.from(wallet)));
+        when(walletRepository.findAllByUserId(aUserId.getValue()))
+                .thenReturn(List.of(WalletJpaEntity.from(wallet)));
 
-        final var result = gateway.findWalletByUserId(aUserId);
+        final var result = gateway.findAllByUserId(aUserId);
 
-        assertTrue(result.isPresent());
-        final var actual = result.get();
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        final var actual = result.get(0);
 
         assertEquals(wallet.getId().getValue(), actual.getId().getValue());
         assertEquals(wallet.getUserId().getValue(), actual.getUserId().getValue());
+        assertEquals(wallet.getName(), actual.getName());
         assertEquals(wallet.getInvestments().size(), actual.getInvestments().size());
 
-        verify(walletRepository, times(1)).findByUserId(aUserId.getValue());
+        verify(walletRepository, times(1)).findAllByUserId(aUserId.getValue());
     }
 
     @Test
-    void givenAValidUserId_whenCallsFindWalletByUserId_thenShouldReturnEmpty() {
+    void givenAValidUserId_whenCallsFindAllByUserId_thenShouldReturnEmptyList() {
         final var aUserId = UserID.unique();
 
-        when(walletRepository.findByUserId(aUserId.getValue()))
-                .thenReturn(Optional.empty());
+        when(walletRepository.findAllByUserId(aUserId.getValue()))
+                .thenReturn(List.of());
 
-        final var result = gateway.findWalletByUserId(aUserId);
+        final var result = gateway.findAllByUserId(aUserId);
 
+        assertNotNull(result);
         assertTrue(result.isEmpty());
 
-        verify(walletRepository, times(1)).findByUserId(aUserId.getValue());
+        verify(walletRepository, times(1)).findAllByUserId(aUserId.getValue());
     }
 }

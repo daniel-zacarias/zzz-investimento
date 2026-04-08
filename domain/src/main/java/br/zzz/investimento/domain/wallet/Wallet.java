@@ -16,6 +16,8 @@ public class Wallet extends AggregateRoot<WalletID> {
 
     private final UserID userId;
 
+    private final String name;
+
     private final Set<InvestmentID> investments;
 
     private final Instant createdAt;
@@ -27,12 +29,14 @@ public class Wallet extends AggregateRoot<WalletID> {
     protected Wallet(
             final WalletID walletID,
             final UserID userId,
+            final String name,
             final Set<InvestmentID> investments,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt) {
         super(walletID);
         this.userId = userId;
+        this.name = name;
         this.investments = investments;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -42,32 +46,24 @@ public class Wallet extends AggregateRoot<WalletID> {
     }
 
     public static Wallet newWallet(
-            final UserID userId) {
-        var aValidation = Notification.create();
-        WalletValidator.validate(userId, Set.of(), aValidation);
-        if (aValidation.hasError()) {
-            throw new NotificationException("Wallet validation failed", aValidation);
-        }
-        return new Wallet(
-                WalletID.unique(),
-                userId,
-                Set.of(),
-                Instant.now(),
-                Instant.now(),
-                null);
+            final UserID userId,
+            final String name) {
+        return newWallet(userId, name, Set.of());
     }
 
     public static Wallet newWallet(
             final UserID userId,
+            final String name,
             final Set<InvestmentID> investments) {
         var aValidation = Notification.create();
-        WalletValidator.validate(userId, investments, aValidation);
+        WalletValidator.validate(userId, name, investments, aValidation);
         if (aValidation.hasError()) {
             throw new NotificationException("Wallet validation failed", aValidation);
         }
         return new Wallet(
                 WalletID.unique(),
                 userId,
+                name,
                 investments,
                 Instant.now(),
                 Instant.now(),
@@ -77,6 +73,7 @@ public class Wallet extends AggregateRoot<WalletID> {
     public static Wallet with(
             final WalletID walletID,
             final UserID userId,
+            final String name,
             final Set<InvestmentID> investmentIds,
             final Instant createdAt,
             final Instant updatedAt,
@@ -84,6 +81,7 @@ public class Wallet extends AggregateRoot<WalletID> {
         return new Wallet(
                 walletID,
                 userId,
+                name,
                 investmentIds,
                 createdAt,
                 updatedAt,
@@ -113,10 +111,13 @@ public class Wallet extends AggregateRoot<WalletID> {
         return userId;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public Set<InvestmentID> getInvestments() {
         return investments == null ? null : Collections.unmodifiableSet(investments);
     }
-
 
     public Instant getCreatedAt() {
         return createdAt;

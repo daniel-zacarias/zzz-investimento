@@ -17,7 +17,7 @@ public class DefaultCreateWalletUseCase extends CreateWalletUseCase {
     @Override
     public CreateWalletOutput execute(CreateWalletCommand input) {
         final var userId = UserID.from(input.userId());
-        final var wallet = Wallet.newWallet(userId);
+        final var wallet = Wallet.newWallet(userId, input.name());
         return CreateWalletOutput.from(walletGateway.create(wallet));
     }
 }

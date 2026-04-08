@@ -11,6 +11,7 @@ import java.util.Set;
 public record WalletOutput(
         WalletID id,
         String userId,
+        String name,
         Set<InvestmentID> investments,
         BigDecimal totalAmount,
         Instant createdAt,
@@ -21,6 +22,7 @@ public record WalletOutput(
         return new WalletOutput(
                 wallet.getId(),
                 wallet.getUserId().getValue(),
+                wallet.getName(),
                 wallet.getInvestments(),
                 totalAmount,
                 wallet.getCreatedAt(),

@@ -7,6 +7,7 @@ import java.util.Set;
 public record WalletResponse(
         @JsonProperty("id") String id,
         @JsonProperty("userId") String userId,
+        @JsonProperty("name") String name,
         @JsonProperty("investments") Set<String> investments,
         @JsonProperty("totalAmount") Double totalAmount,
         @JsonProperty("createdAt") String createdAt,

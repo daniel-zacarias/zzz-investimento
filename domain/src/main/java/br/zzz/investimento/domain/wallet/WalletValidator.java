@@ -19,19 +19,30 @@ public class WalletValidator extends Validator {
     @Override
     public void validate() {
         checkNotNull(wallet.getUserId(), "User ID should not be null");
+        checkNotNull(wallet.getName(), "Wallet name should not be null");
+        checkNotBlank(wallet.getName(), "Wallet name should not be blank");
         checkNotNull(wallet.getInvestments(), "Investment IDs should not be null");
     }
 
     public static void validate(
             final UserID userId,
+            final String name,
             final Set<InvestmentID> investmentIds,
             final ValidationHandler aHandler) {
         checkNotNull(userId, "User ID should not be null", aHandler);
+        checkNotNull(name, "Wallet name should not be null", aHandler);
+        checkNotBlank(name, "Wallet name should not be blank", aHandler);
         checkNotNull(investmentIds, "Investment IDs should not be null", aHandler);
     }
 
     private void checkNotNull(final Object anObject, final String message) {
         if (anObject == null) {
+            validationHandler().append(new Error(message));
+        }
+    }
+
+    private void checkNotBlank(final String value, final String message) {
+        if (value != null && value.isBlank()) {
             validationHandler().append(new Error(message));
         }
     }
@@ -42,5 +53,9 @@ public class WalletValidator extends Validator {
         }
     }
 
-
+    private static void checkNotBlank(final String value, final String message, final ValidationHandler aHandler) {
+        if (value != null && value.isBlank()) {
+            aHandler.append(new Error(message));
+        }
+    }
 }

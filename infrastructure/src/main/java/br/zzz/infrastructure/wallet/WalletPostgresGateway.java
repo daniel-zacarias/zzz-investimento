@@ -9,8 +9,8 @@ import br.zzz.investimento.domain.wallet.WalletID;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Component
 public class WalletPostgresGateway implements WalletGateway {
@@ -33,9 +33,10 @@ public class WalletPostgresGateway implements WalletGateway {
     }
 
     @Override
-    public Optional<Wallet> findWalletByUserId(final UserID userID) {
-        return walletRepository.findByUserId(userID.getValue())
-                .map(WalletJpaEntity::toAggregate);
+    public List<Wallet> findAllByUserId(final UserID userID) {
+        return walletRepository.findAllByUserId(userID.getValue()).stream()
+                .map(WalletJpaEntity::toAggregate)
+                .toList();
     }
 
     private Wallet save(final Wallet wallet) {
