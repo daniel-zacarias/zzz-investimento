@@ -2,10 +2,13 @@ package br.zzz.infrastructure.api;
 
 import br.zzz.infrastructure.investment.persistence.InvestmentRepository;
 import br.zzz.infrastructure.wallet.WalletPostgresGateway;
-import br.zzz.investimento.application.wallet.retrieve.get.FindWalletsByUserIdUseCase;
-import br.zzz.investimento.application.wallet.retrieve.get.WalletOutput;
+import br.zzz.investimento.application.wallet.retrieve.list.ListWalletsByUserIdUseCase;
+import br.zzz.investimento.application.wallet.retrieve.list.ListWalletOutput;
 import br.zzz.investimento.domain.investment.InvestmentID;
+import br.zzz.investimento.domain.pagination.Pagination;
+import br.zzz.investimento.domain.user.UserID;
 import br.zzz.investimento.domain.wallet.WalletID;
+import br.zzz.investimento.domain.wallet.WalletSearchQuery;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,6 +21,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -34,7 +38,7 @@ class WalletAPITest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private FindWalletsByUserIdUseCase findWalletsByUserIdUseCase;
+    private ListWalletsByUserIdUseCase listWalletsByUserIdUseCase;
 
     // When JPA auto-config is disabled in this test, mocking the gateway avoids requiring a JPA repository bean.
     @MockitoBean
@@ -44,33 +48,54 @@ class WalletAPITest {
     private InvestmentRepository investmentRepository;
 
     @Test
-    void givenAUserId_whenCallsGetWalletByUserId_thenReturnsWallets() throws Exception {
+    void givenAUserId_whenCallsListWalletsPaginated_thenReturnsWallets() throws Exception {
         final var aUserId = "user-123";
         final var aWalletName = "Renda Fixa";
         final var createdAt = Instant.parse("2026-03-13T10:15:30Z");
 
-        when(findWalletsByUserIdUseCase.execute(aUserId)).thenReturn(
-                List.of(
-                        new WalletOutput(
-                                WalletID.from("wallet-1"),
-                                aUserId,
-                                aWalletName,
-                                Set.of(InvestmentID.from("inv-1"), InvestmentID.from("inv-2")),
-                                new BigDecimal("1500.00"),
-                                createdAt,
-                                createdAt,
-                                null
+        when(listWalletsByUserIdUseCase.execute(any(WalletSearchQuery.class))).thenReturn(
+                new Pagination<>(
+                        0,
+                        10,
+                        1,
+                        List.of(
+                                new ListWalletOutput(
+                                        WalletID.from("wallet-1"),
+                                        aUserId,
+                                        aWalletName,
+                                        Set.of(InvestmentID.from("inv-1"), InvestmentID.from("inv-2")),
+                                        new BigDecimal("1500.00"),
+                                        createdAt,
+                                        createdAt,
+                                        null
+                                )
                         )
                 )
         );
 
-        mockMvc.perform(get("/wallets/{userId}", aUserId))
+        mockMvc.perform(get("/wallets")
+                        .queryParam("userId", aUserId)
+                        .queryParam("page", "0")
+                        .queryParam("perPage", "10")
+        )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value("wallet-1"))
-                .andExpect(jsonPath("$[0].userId").value(aUserId))
-                .andExpect(jsonPath("$[0].name").value(aWalletName))
-                .andExpect(jsonPath("$[0].totalAmount").value(1500.0));
+                .andExpect(jsonPath("$.currentPage").value(0))
+                .andExpect(jsonPath("$.perPage").value(10))
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.items[0].id").value("wallet-1"))
+                .andExpect(jsonPath("$.items[0].userId").value(aUserId))
+                .andExpect(jsonPath("$.items[0].name").value(aWalletName))
+                .andExpect(jsonPath("$.items[0].totalAmount").value(1500.0));
 
-        verify(findWalletsByUserIdUseCase).execute(aUserId);
+        verify(listWalletsByUserIdUseCase).execute(
+                new WalletSearchQuery(
+                        0,
+                        10,
+                        null,
+                        "createdAt",
+                        "asc",
+                        UserID.from(aUserId)
+                )
+        );
     }
 }

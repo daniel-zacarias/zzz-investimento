@@ -22,7 +22,7 @@ public class DefaultListWalletsByUserIdUseCase extends ListWalletsByUserIdUseCas
     }
 
     @Override
-    public Pagination<WalletOutput> execute(final WalletSearchQuery query) {
+    public Pagination<ListWalletOutput> execute(final WalletSearchQuery query) {
         Objects.requireNonNull(query);
 
         final var page = this.walletGateway.findAllByUserId(query);
@@ -41,7 +41,7 @@ public class DefaultListWalletsByUserIdUseCase extends ListWalletsByUserIdUseCas
                     ? BigDecimal.ZERO
                     : totalsByWalletId.getOrDefault(aWallet.getId(), BigDecimal.ZERO);
 
-            return WalletOutput.from(aWallet, total.setScale(2, RoundingMode.HALF_UP));
+            return ListWalletOutput.from(aWallet, total.setScale(2, RoundingMode.HALF_UP));
         });
     }
 }

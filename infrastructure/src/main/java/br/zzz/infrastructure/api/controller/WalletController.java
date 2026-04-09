@@ -6,29 +6,48 @@ import br.zzz.infrastructure.wallet.models.WalletResponse;
 import br.zzz.infrastructure.wallet.presenter.WalletPresenter;
 import br.zzz.investimento.application.wallet.create.CreateWalletCommand;
 import br.zzz.investimento.application.wallet.create.CreateWalletUseCase;
-import br.zzz.investimento.application.wallet.retrieve.get.FindWalletsByUserIdUseCase;
+import br.zzz.investimento.application.wallet.retrieve.list.ListWalletsByUserIdUseCase;
+import br.zzz.investimento.domain.pagination.Pagination;
+import br.zzz.investimento.domain.user.UserID;
+import br.zzz.investimento.domain.wallet.WalletSearchQuery;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Objects;
 
 @RestController
 public class WalletController implements WalletAPI {
 
-    private final FindWalletsByUserIdUseCase findWalletsByUserIdUseCase;
+    private final ListWalletsByUserIdUseCase listWalletsByUserIdUseCase;
     private final CreateWalletUseCase createWalletUseCase;
 
-    public WalletController(final FindWalletsByUserIdUseCase findWalletsByUserIdUseCase,
+    public WalletController(final ListWalletsByUserIdUseCase listWalletsByUserIdUseCase,
                             final CreateWalletUseCase createWalletUseCase) {
-        this.findWalletsByUserIdUseCase = Objects.requireNonNull(findWalletsByUserIdUseCase);
+        this.listWalletsByUserIdUseCase = Objects.requireNonNull(listWalletsByUserIdUseCase);
         this.createWalletUseCase = Objects.requireNonNull(createWalletUseCase);
     }
 
     @Override
-    public List<WalletResponse> getByUserId(final String userId) {
-        return WalletPresenter.present(findWalletsByUserIdUseCase.execute(userId));
+    public Pagination<WalletResponse> listByUserId(
+            final String userId,
+            final int page,
+            final int perPage,
+            final String terms,
+            final String sort,
+            final String direction
+    ) {
+        final var query = new WalletSearchQuery(
+                page,
+                perPage,
+                terms,
+                sort,
+                direction,
+                UserID.from(userId)
+        );
+
+        final var outputPage = this.listWalletsByUserIdUseCase.execute(query);
+        return WalletPresenter.present(outputPage);
     }
 
     @Override

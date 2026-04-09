@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Set;
 
-public record WalletOutput(
+public record ListWalletOutput(
         WalletID id,
         String userId,
         String name,
@@ -18,8 +18,8 @@ public record WalletOutput(
         Instant updatedAt,
         Instant deletedAt
 ) {
-    public static WalletOutput from(final Wallet wallet, final BigDecimal totalAmount) {
-        return new WalletOutput(
+    public static ListWalletOutput from(final Wallet wallet, final BigDecimal totalAmount) {
+        return new ListWalletOutput(
                 wallet.getId(),
                 wallet.getUserId().getValue(),
                 wallet.getName(),

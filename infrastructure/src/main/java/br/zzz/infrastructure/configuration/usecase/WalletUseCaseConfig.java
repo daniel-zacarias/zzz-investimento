@@ -4,6 +4,8 @@ import br.zzz.investimento.application.wallet.create.CreateWalletUseCase;
 import br.zzz.investimento.application.wallet.create.DefaultCreateWalletUseCase;
 import br.zzz.investimento.application.wallet.retrieve.get.DefaultFindWalletsByUserIdUseCase;
 import br.zzz.investimento.application.wallet.retrieve.get.FindWalletsByUserIdUseCase;
+import br.zzz.investimento.application.wallet.retrieve.list.DefaultListWalletsByUserIdUseCase;
+import br.zzz.investimento.application.wallet.retrieve.list.ListWalletsByUserIdUseCase;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 import br.zzz.investimento.domain.wallet.WalletGateway;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +25,11 @@ public class WalletUseCaseConfig {
     @Bean
     public FindWalletsByUserIdUseCase findWalletsByUserIdUseCase() {
         return new DefaultFindWalletsByUserIdUseCase(walletGateway, investmentGateway);
+    }
+
+    @Bean
+    public ListWalletsByUserIdUseCase listWalletsByUserIdUseCase() {
+        return new DefaultListWalletsByUserIdUseCase(walletGateway, investmentGateway);
     }
 
     @Bean
