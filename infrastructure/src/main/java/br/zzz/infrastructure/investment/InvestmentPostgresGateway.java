@@ -8,9 +8,14 @@ import br.zzz.investimento.domain.investment.InvestmentID;
 import br.zzz.investimento.domain.wallet.WalletID;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class InvestmentPostgresGateway implements InvestmentGateway {
@@ -43,6 +48,29 @@ public class InvestmentPostgresGateway implements InvestmentGateway {
         return investmentRepository.findAllByWalletId(walletId.getValue()).stream()
                 .map(InvestmentJpaEntity::toAggregate)
                 .toList();
+    }
+
+    @Override
+    public Map<WalletID, BigDecimal> sumResultsByWalletIds(final Set<WalletID> walletIds) {
+        if (walletIds == null || walletIds.isEmpty()) {
+            return Map.of();
+        }
+
+        final var walletIdValues = walletIds.stream()
+                .filter(Objects::nonNull)
+                .map(WalletID::getValue)
+                .distinct()
+                .toList();
+
+        if (walletIdValues.isEmpty()) {
+            return Map.of();
+        }
+
+        return investmentRepository.sumResultByWalletIds(walletIdValues).stream()
+                .collect(Collectors.toMap(
+                        it -> WalletID.from(it.getWalletId()),
+                        it -> BigDecimal.valueOf(it.getTotalResult()).setScale(2, RoundingMode.HALF_UP)
+                ));
     }
 
     @Override

@@ -114,6 +114,20 @@ class WalletTest {
     }
 
     @Test
+    void givenNameLongerThan100_whenNewWallet_thenThrowsNotificationException() {
+        final var tooLongName = "a".repeat(101);
+
+        final var exception = assertThrows(
+                NotificationException.class,
+                () -> Wallet.newWallet(UserID.unique(), tooLongName, Set.of()));
+
+        assertEquals("Wallet validation failed", exception.getMessage());
+        assertNotNull(exception.getErrors());
+        assertEquals(1, exception.getErrors().size());
+        assertEquals("Wallet name should not be greater than 100 characters", exception.getErrors().get(0).message());
+    }
+
+    @Test
     void givenNullInvestments_whenNewWallet_thenThrowsNotificationException() {
         final var exception = assertThrows(
                 NotificationException.class,

@@ -9,6 +9,9 @@ import br.zzz.investimento.domain.validation.Validator;
 import java.util.Set;
 
 public class WalletValidator extends Validator {
+
+    private static final int MAX_NAME_LENGTH = 100;
+
     private final Wallet wallet;
 
     public WalletValidator(final Wallet wallet, final ValidationHandler aHandler) {
@@ -21,6 +24,7 @@ public class WalletValidator extends Validator {
         checkNotNull(wallet.getUserId(), "User ID should not be null");
         checkNotNull(wallet.getName(), "Wallet name should not be null");
         checkNotBlank(wallet.getName(), "Wallet name should not be blank");
+        checkMaxLength(wallet.getName(), MAX_NAME_LENGTH, "Wallet name should not be greater than 100 characters");
         checkNotNull(wallet.getInvestments(), "Investment IDs should not be null");
     }
 
@@ -32,6 +36,7 @@ public class WalletValidator extends Validator {
         checkNotNull(userId, "User ID should not be null", aHandler);
         checkNotNull(name, "Wallet name should not be null", aHandler);
         checkNotBlank(name, "Wallet name should not be blank", aHandler);
+        checkMaxLength(name, MAX_NAME_LENGTH, "Wallet name should not be greater than 100 characters", aHandler);
         checkNotNull(investmentIds, "Investment IDs should not be null", aHandler);
     }
 
@@ -47,6 +52,12 @@ public class WalletValidator extends Validator {
         }
     }
 
+    private void checkMaxLength(final String value, final int maxLength, final String message) {
+        if (value != null && value.length() > maxLength) {
+            validationHandler().append(new Error(message));
+        }
+    }
+
     private static void checkNotNull(final Object anObject, final String message, final ValidationHandler aHandler) {
         if (anObject == null) {
             aHandler.append(new Error(message));
@@ -55,6 +66,12 @@ public class WalletValidator extends Validator {
 
     private static void checkNotBlank(final String value, final String message, final ValidationHandler aHandler) {
         if (value != null && value.isBlank()) {
+            aHandler.append(new Error(message));
+        }
+    }
+
+    private static void checkMaxLength(final String value, final int maxLength, final String message, final ValidationHandler aHandler) {
+        if (value != null && value.length() > maxLength) {
             aHandler.append(new Error(message));
         }
     }

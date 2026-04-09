@@ -94,7 +94,7 @@ class FindWalletsByUserIdUseCaseTest {
 
         // when & then
         assertThrows(NullPointerException.class, () -> useCase.execute(null));
-        verify(gatewayMock, never()).findAllByUserId(any());
+        verify(gatewayMock, never()).findAllByUserId(any(UserID.class));
     }
 
     @Test

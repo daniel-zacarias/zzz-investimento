@@ -5,6 +5,7 @@ import br.zzz.infrastructure.wallet.persistence.WalletRepository;
 import br.zzz.investimento.domain.investment.InvestmentID;
 import br.zzz.investimento.domain.user.UserID;
 import br.zzz.investimento.domain.wallet.Wallet;
+import br.zzz.investimento.domain.wallet.WalletSearchQuery;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,12 +42,16 @@ class WalletPostgresGatewayTest {
         when(walletRepository.findAllByUserId(aUserId.getValue()))
                 .thenReturn(List.of(WalletJpaEntity.from(wallet)));
 
-        final var result = gateway.findAllByUserId(aUserId);
+        final var query = new WalletSearchQuery(0, 10, null, null, null, aUserId);
+        final var result = gateway.findAllByUserId(query);
 
         assertNotNull(result);
-        assertEquals(1, result.size());
+        assertEquals(0, result.currentPage());
+        assertEquals(10, result.perPage());
+        assertEquals(1, result.total());
+        assertEquals(1, result.items().size());
 
-        final var actual = result.get(0);
+        final var actual = result.items().get(0);
 
         assertEquals(wallet.getId().getValue(), actual.getId().getValue());
         assertEquals(wallet.getUserId().getValue(), actual.getUserId().getValue());
@@ -63,10 +68,12 @@ class WalletPostgresGatewayTest {
         when(walletRepository.findAllByUserId(aUserId.getValue()))
                 .thenReturn(List.of());
 
-        final var result = gateway.findAllByUserId(aUserId);
+        final var query = new WalletSearchQuery(0, 10, null, null, null, aUserId);
+        final var result = gateway.findAllByUserId(query);
 
         assertNotNull(result);
-        assertTrue(result.isEmpty());
+        assertTrue(result.items().isEmpty());
+        assertEquals(0, result.total());
 
         verify(walletRepository, times(1)).findAllByUserId(aUserId.getValue());
     }
