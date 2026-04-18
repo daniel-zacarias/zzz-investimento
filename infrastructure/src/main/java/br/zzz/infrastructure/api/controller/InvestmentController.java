@@ -1,6 +1,7 @@
 package br.zzz.infrastructure.api.controller;
 
 import br.zzz.infrastructure.investment.presenter.InvestmentPresenter;
+import br.zzz.infrastructure.utils.BigDecimalUtils;
 import br.zzz.investimento.application.investment.create.CreateInvestmentCommand;
 import br.zzz.investimento.application.investment.create.CreateInvestmentUseCase;
 import br.zzz.investimento.application.investment.delete.DeleteInvestmentByIdUseCase;
@@ -12,7 +13,6 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Objects;
 
-import org.hibernate.sql.Update;
 import org.springframework.http.ResponseEntity;
 
 import br.zzz.infrastructure.api.InvestmentAPI;
@@ -48,6 +48,7 @@ public class InvestmentController implements InvestmentAPI {
                 new BigDecimal(request.amount()),
                 request.annualPeriod(),
                 new BigDecimal(request.annualRate()),
+                BigDecimalUtils.parseOrZero(request.monthAmount()),
                 request.walletId());
         final var output = createInvestmentUseCase.execute(command);
         return ResponseEntity.created(URI.create("/api/investments/" + output.id())).body(output);
@@ -64,7 +65,8 @@ public class InvestmentController implements InvestmentAPI {
                 id,
                 new BigDecimal(request.amount()),
                 request.annualPeriod(),
-                new BigDecimal(request.annualRate()));
+                new BigDecimal(request.annualRate()),
+                BigDecimalUtils.parseOrZero(request.monthAmount()));
 
         final var output = updateInvestmentUseCase.execute(command);
         return ResponseEntity.ok(output);

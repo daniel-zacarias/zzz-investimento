@@ -30,6 +30,7 @@ public class DefaultCreateInvestmentUseCase extends  CreateInvestmentUseCase {
                 command.annualPeriod(),
                 command.amount(),
                 command.annualRate(),
+                command.monthAmount(),
                 walletID
         );
         return CreateInvestmentOutput.from(gateway.create(investment));

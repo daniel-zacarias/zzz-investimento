@@ -41,9 +41,16 @@ public class CreateInvestmentUseCaseTest extends UseCaseTest {
         final var expectedAmount = new BigDecimal("1000.0");
         final var expectedAnnualPeriod = 5;
         final var expectedAnnualRate = new BigDecimal("0.01");
+        final var expectedMonthAmount = BigDecimal.ZERO;
         final var expectedWalletID = WalletID.unique().getValue();
 
-        final var aCommand = CreateInvestmentCommand.with(expectedAmount, expectedAnnualPeriod, expectedAnnualRate, expectedWalletID);
+        final var aCommand = CreateInvestmentCommand.with(
+                expectedAmount,
+                expectedAnnualPeriod,
+                expectedAnnualRate,
+                expectedMonthAmount,
+                expectedWalletID
+        );
 
         // when
         when(walletGateway.existsById(any())).thenReturn(true);
@@ -60,6 +67,7 @@ public class CreateInvestmentUseCaseTest extends UseCaseTest {
                 Objects.equals(investment.getAmount(), expectedAmount)
                         && Objects.equals(investment.getAnnualPeriod(), expectedAnnualPeriod)
                         && Objects.equals(investment.getAnnualRate(), expectedAnnualRate)
+                        && Objects.equals(investment.getMonthAmount(), expectedMonthAmount)
                         && Objects.equals(investment.getWallet().getValue(), expectedWalletID)
                         && Objects.nonNull(investment.getCreatedAt())
                         && Objects.nonNull(investment.getUpdatedAt())
@@ -79,7 +87,9 @@ public class CreateInvestmentUseCaseTest extends UseCaseTest {
                 expectedAmount,
                 expectedAnnualPeriod,
                 expectedAnnualRate,
-                expectedWalletID);
+                BigDecimal.ZERO,
+                expectedWalletID
+        );
 
         // when
         when(walletGateway.existsById(any())).thenReturn(false);
@@ -109,7 +119,13 @@ public class CreateInvestmentUseCaseTest extends UseCaseTest {
         final var expectedAnnualRate = new BigDecimal("0.01");
         final var expectedWalletID = WalletID.unique().getValue();
 
-        final var aCommand = CreateInvestmentCommand.with(expectedAmount, expectedAnnualPeriod, expectedAnnualRate, expectedWalletID);
+        final var aCommand = CreateInvestmentCommand.with(
+                expectedAmount,
+                expectedAnnualPeriod,
+                expectedAnnualRate,
+                BigDecimal.ZERO,
+                expectedWalletID
+        );
 
         // when
         when(walletGateway.existsById(any())).thenReturn(true);

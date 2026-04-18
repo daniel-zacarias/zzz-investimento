@@ -80,6 +80,7 @@ class InvestmentAPITest {
                                                 anId,
                                                 12,
                                                 new BigDecimal("1000.00"),
+                                                BigDecimal.ZERO,
                                                 new BigDecimal("1126.83"),
                                                 new BigDecimal("0.01"),
                                                 createdAt,
@@ -106,6 +107,7 @@ class InvestmentAPITest {
                                 "1000.00",
                                 12,
                                 "0.01",
+                                null,
                                 expectedId.getValue()
                 );
 
@@ -122,6 +124,7 @@ class InvestmentAPITest {
                 assertEquals(0, aCommand.amount().compareTo(new BigDecimal("1000.00")));
                 assertEquals(12, aCommand.annualPeriod());
                 assertEquals(0, aCommand.annualRate().compareTo(new BigDecimal("0.01")));
+                assertEquals(0, aCommand.monthAmount().compareTo(BigDecimal.ZERO));
         }
 
         @Test
@@ -134,7 +137,8 @@ class InvestmentAPITest {
                 final var body = new UpdateInvestmentRequest(
                                 "1500.00",
                                 18,
-                                "0.02"
+                                "0.02",
+                                null
                 );
 
                 mockMvc.perform(put("/investments/{id}", anId)
@@ -151,6 +155,7 @@ class InvestmentAPITest {
                 assertEquals(0, aCommand.amount().compareTo(new BigDecimal("1500.00")));
                 assertEquals(18, aCommand.annualPeriod());
                 assertEquals(0, aCommand.annualRate().compareTo(new BigDecimal("0.02")));
+                assertEquals(0, aCommand.monthAmount().compareTo(BigDecimal.ZERO));
         }
 
         @Test

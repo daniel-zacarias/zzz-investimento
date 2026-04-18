@@ -16,6 +16,7 @@ class InvestmentTest {
                 new BigDecimal("1500.00"),
                 new BigDecimal("0.10"));
 
+        assertEquals(BigDecimal.ZERO, investment.getMonthAmount());
         assertEquals(new BigDecimal("1815.00"), investment.getResult());
     }
 
@@ -101,6 +102,7 @@ class InvestmentTest {
                 new BigDecimal("2000.00"),
                 new BigDecimal("0.15"));
 
+        assertEquals(investment.getMonthAmount(), updated.getMonthAmount());
         assertEquals(3, updated.getAnnualPeriod());
         assertEquals(new BigDecimal("2000.00"), updated.getAmount());
         assertEquals(new BigDecimal("0.15"), updated.getAnnualRate());
@@ -124,6 +126,7 @@ class InvestmentTest {
         assertEquals(investment.getAmount(), deleted.getAmount());
         assertEquals(investment.getResult(), deleted.getResult());
         assertEquals(investment.getAnnualRate(), deleted.getAnnualRate());
+        assertEquals(investment.getMonthAmount(), deleted.getMonthAmount());
         assertEquals(investment.getWallet(), deleted.getWallet());
     }
 
@@ -155,6 +158,18 @@ class InvestmentTest {
                 new BigDecimal("0.00"));
 
         assertEquals(new BigDecimal("1000.00"), investment.getResult());
+    }
+
+    @Test
+    void givenMonthlyContribution_whenCreateInvestment_thenIncludeAnnuityInResult() {
+        final var investment = Investment.newInvestment(
+                1,
+                new BigDecimal("1000.00"),
+                new BigDecimal("0.12"),
+                new BigDecimal("100.00"));
+
+        assertEquals(new BigDecimal("100.00"), investment.getMonthAmount());
+        assertEquals(new BigDecimal("2384.65"), investment.getResult());
     }
 
 }

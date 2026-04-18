@@ -58,6 +58,7 @@ class InvestmentPostgresGatewayTest {
         assertEquals(expectedAnnualPeriod, capturedEntity.getAnnualPeriod());
         assertEquals(expectedAmount.doubleValue(), capturedEntity.getAmount());
         assertEquals(expectedAnnualRate.doubleValue(), capturedEntity.getAnnualRate());
+        assertEquals(0.0d, capturedEntity.getMonthAmount());
     }
 
     @Test

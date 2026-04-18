@@ -8,6 +8,7 @@ public interface InvestmentPresenter {
         return new InvestmentResponse(
                 output.id().getValue(),
                 output.amount().doubleValue(),
+                output.monthAmount().doubleValue(),
                 output.annualPeriod(),
                 output.annualRate().doubleValue(),
                 output.result().doubleValue(),

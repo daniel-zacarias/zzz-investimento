@@ -39,6 +39,9 @@ public class InvestmentJpaEntity {
     @Column(name = "annual_rate", nullable = false)
     private Double annualRate;
 
+    @Column(name = "month_amount", nullable = false)
+    private Double monthAmount;
+
     @Column(name = "result", nullable = false)
     private Double result;
 
@@ -62,6 +65,7 @@ public class InvestmentJpaEntity {
             final String walletId,
             final Double amount,
             final Double annualRate,
+            final Double monthAmount,
             final Double result,
             final Integer annualPeriod,
             final Instant createdAt,
@@ -71,6 +75,7 @@ public class InvestmentJpaEntity {
         this.walletId = walletId;
         this.amount = amount;
         this.annualRate = annualRate;
+        this.monthAmount = monthAmount;
         this.result = result;
         this.annualPeriod = annualPeriod;
         this.createdAt = createdAt;
@@ -84,6 +89,7 @@ public class InvestmentJpaEntity {
                 entity.getWallet().getValue(),
                 entity.getAmount().doubleValue(),
                 entity.getAnnualRate().doubleValue(),
+                entity.getMonthAmount().doubleValue(),
                 entity.getResult().doubleValue(),
                 entity.getAnnualPeriod(),
                 entity.getCreatedAt(),
@@ -97,6 +103,7 @@ public class InvestmentJpaEntity {
                 getAnnualPeriod(),
                 BigDecimal.valueOf(getAmount()),
                 BigDecimal.valueOf(getAnnualRate()),
+                BigDecimal.valueOf(getMonthAmount()),
                 BigDecimal.valueOf(getResult()),
                 WalletID.from(getWalletId()),
                 getCreatedAt(),
@@ -142,6 +149,14 @@ public class InvestmentJpaEntity {
 
     public void setAnnualRate(Double annualRate) {
         this.annualRate = annualRate;
+    }
+
+    public Double getMonthAmount() {
+        return monthAmount;
+    }
+
+    public void setMonthAmount(final Double monthAmount) {
+        this.monthAmount = monthAmount;
     }
 
     public Double getResult() {

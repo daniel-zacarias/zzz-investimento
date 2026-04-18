@@ -40,8 +40,15 @@ public class UpdateInvestmentUseCaseTest extends UseCaseTest {
         final var expectedAmount = new BigDecimal("2000.0");
         final var expectedAnnualPeriod = 10;
         final var expectedAnnualRate = new BigDecimal("0.05");
+        final var expectedMonthAmount = new BigDecimal("100.0");
 
-        final var aCommand = UpdateInvestmentCommand.with(expectedId, expectedAmount, expectedAnnualPeriod, expectedAnnualRate);
+        final var aCommand = UpdateInvestmentCommand.with(
+                expectedId,
+                expectedAmount,
+                expectedAnnualPeriod,
+                expectedAnnualRate,
+                expectedMonthAmount
+        );
 
         when(investmentGateway.findById(InvestmentID.from(expectedId))).thenReturn(Optional.of(existingInvestment));
         when(investmentGateway.update(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -59,6 +66,7 @@ public class UpdateInvestmentUseCaseTest extends UseCaseTest {
                         && Objects.equals(investment.getAmount(), expectedAmount)
                         && Objects.equals(investment.getAnnualPeriod(), expectedAnnualPeriod)
                         && Objects.equals(investment.getAnnualRate(), expectedAnnualRate)
+                        && Objects.equals(investment.getMonthAmount(), expectedMonthAmount)
                         && Objects.nonNull(investment.getUpdatedAt())
         ));
     }
@@ -70,7 +78,13 @@ public class UpdateInvestmentUseCaseTest extends UseCaseTest {
         final var expectedId = existingInvestment.getId().getValue();
         final var expectedAnnualPeriod = 0;
 
-        final var aCommand = UpdateInvestmentCommand.with(expectedId, new BigDecimal("1000.0"), expectedAnnualPeriod, new BigDecimal("0.01"));
+        final var aCommand = UpdateInvestmentCommand.with(
+                expectedId,
+                new BigDecimal("1000.0"),
+                expectedAnnualPeriod,
+                new BigDecimal("0.01"),
+                BigDecimal.ZERO
+        );
 
         when(investmentGateway.findById(InvestmentID.from(expectedId))).thenReturn(Optional.of(existingInvestment));
 
@@ -96,7 +110,13 @@ public class UpdateInvestmentUseCaseTest extends UseCaseTest {
     public void givenANonExistentId_whenCallsUpdateInvestment_thenReturnDomainException() {
         // given
         final var expectedId = InvestmentID.unique().getValue();
-        final var aCommand = UpdateInvestmentCommand.with(expectedId, new BigDecimal("1000.0"), 5, new BigDecimal("0.01"));
+        final var aCommand = UpdateInvestmentCommand.with(
+                expectedId,
+                new BigDecimal("1000.0"),
+                5,
+                new BigDecimal("0.01"),
+                BigDecimal.ZERO
+        );
 
         when(investmentGateway.findById(InvestmentID.from(expectedId))).thenReturn(Optional.empty());
 

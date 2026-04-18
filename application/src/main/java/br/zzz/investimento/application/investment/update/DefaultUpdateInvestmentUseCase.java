@@ -23,7 +23,12 @@ public class DefaultUpdateInvestmentUseCase extends UpdateInvestmentUseCase {
         final var investment = gateway.findById(id)
                 .orElseThrow(notFound(id));
 
-        final var updatedInvestment = investment.update(command.annualPeriod(), command.amount(), command.annualRate());
+        final var updatedInvestment = investment.update(
+                command.annualPeriod(),
+                command.amount(),
+                command.annualRate(),
+                command.monthAmount()
+        );
 
         return UpdateInvestmentOutput.from(gateway.update(updatedInvestment));
     }

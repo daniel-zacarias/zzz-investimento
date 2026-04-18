@@ -28,17 +28,17 @@ public class InvestmentPostgresGateway implements InvestmentGateway {
 
 
     @Override
-    public Investment create(Investment investment) {
-        return save(investment);
+    public Investment create(final Investment investment) {
+        return investmentRepository.save(InvestmentJpaEntity.from(investment)).toAggregate();
     }
 
     @Override
-    public void deleteById(InvestmentID id) {
+    public void deleteById(final InvestmentID id) {
         investmentRepository.deleteById(id.getValue());
     }
 
     @Override
-    public Optional<Investment> findById(InvestmentID id) {
+    public Optional<Investment> findById(final InvestmentID id) {
         return investmentRepository.findById(id.getValue()).map(InvestmentJpaEntity::toAggregate);
     }
 
@@ -74,11 +74,17 @@ public class InvestmentPostgresGateway implements InvestmentGateway {
     }
 
     @Override
-    public Investment update(Investment investment) {
-        return save(investment);
-    }
+    public Investment update(final Investment investment) {
+        final var entity = investmentRepository.findById(investment.getId().getValue())
+                .orElseThrow();
 
-    private Investment save(final Investment investment) {
-        return investmentRepository.save(InvestmentJpaEntity.from(investment)).toAggregate();
+        entity.setAmount(investment.getAmount().doubleValue());
+        entity.setAnnualRate(investment.getAnnualRate().doubleValue());
+        entity.setMonthAmount(investment.getMonthAmount().doubleValue());
+        entity.setResult(investment.getResult().doubleValue());
+        entity.setAnnualPeriod(investment.getAnnualPeriod());
+        entity.setUpdatedAt(investment.getUpdatedAt());
+
+        return investmentRepository.save(entity).toAggregate();
     }
 }
