@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.3</version>
+        <version>4.0.5</version>
         <relativePath/>
     </parent>
 
@@ -20,7 +20,6 @@
         <module>domain</module>
         <module>application</module>
         <module>infrastructure</module>
-        <module>investment-service</module>
     </modules>
     <build>
         <plugins>

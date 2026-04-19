@@ -3,10 +3,10 @@ package br.zzz.infrastructure.api.controller;
 import br.zzz.infrastructure.api.InvestmentAPI;
 import br.zzz.infrastructure.investment.client.InvestmentServiceClient;
 import br.zzz.infrastructure.investment.models.CreateInvestmentRequest;
+import br.zzz.infrastructure.investment.models.CreateInvestmentResult;
 import br.zzz.infrastructure.investment.models.InvestmentResponse;
 import br.zzz.infrastructure.investment.models.UpdateInvestmentRequest;
-import br.zzz.investimento.application.investment.create.CreateInvestmentOutput;
-import br.zzz.investimento.application.investment.update.UpdateInvestmentOutput;
+import br.zzz.infrastructure.investment.models.UpdateInvestmentResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +24,7 @@ public class InvestmentController implements InvestmentAPI {
 
     @Override
     public ResponseEntity<?> create(final CreateInvestmentRequest request) {
-        final CreateInvestmentOutput output = investmentServiceClient.create(request);
+        final CreateInvestmentResult output = investmentServiceClient.create(request);
         return ResponseEntity.created(URI.create("/api/investments/" + output.id())).body(output);
     }
 
@@ -35,7 +35,7 @@ public class InvestmentController implements InvestmentAPI {
 
     @Override
     public ResponseEntity<?> update(final String id, final UpdateInvestmentRequest request) {
-        final UpdateInvestmentOutput output = investmentServiceClient.update(id, request);
+        final UpdateInvestmentResult output = investmentServiceClient.update(id, request);
         return ResponseEntity.ok(output);
     }
 

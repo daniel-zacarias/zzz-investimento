@@ -1,6 +1,5 @@
 package br.zzz.infrastructure.api;
 
-import br.zzz.infrastructure.investment.persistence.InvestmentRepository;
 import br.zzz.infrastructure.wallet.WalletPostgresGateway;
 import br.zzz.investimento.application.wallet.retrieve.list.ListWalletsByUserIdUseCase;
 import br.zzz.investimento.application.wallet.retrieve.list.ListWalletOutput;
@@ -43,9 +42,6 @@ class WalletAPITest {
     // When JPA auto-config is disabled in this test, mocking the gateway avoids requiring a JPA repository bean.
     @MockitoBean
     private WalletPostgresGateway walletGateway;
-
-    @MockitoBean
-    private InvestmentRepository investmentRepository;
 
     @Test
     void givenAUserId_whenCallsListWalletsPaginated_thenReturnsWallets() throws Exception {

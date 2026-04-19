@@ -2,10 +2,10 @@ package br.zzz.infrastructure.api;
 
 import br.zzz.infrastructure.investment.client.InvestmentServiceClient;
 import br.zzz.infrastructure.investment.models.CreateInvestmentRequest;
+import br.zzz.infrastructure.investment.models.CreateInvestmentResult;
 import br.zzz.infrastructure.investment.models.InvestmentResponse;
 import br.zzz.infrastructure.investment.models.UpdateInvestmentRequest;
-import br.zzz.investimento.application.investment.create.CreateInvestmentOutput;
-import br.zzz.investimento.application.investment.update.UpdateInvestmentOutput;
+import br.zzz.infrastructure.investment.models.UpdateInvestmentResult;
 import br.zzz.investimento.domain.investment.InvestmentID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import br.zzz.infrastructure.investment.persistence.InvestmentRepository;
 import br.zzz.infrastructure.wallet.persistence.WalletRepository;
 
 import java.time.Instant;
@@ -47,9 +46,6 @@ class InvestmentAPITest {
 
         @MockitoBean
         private InvestmentServiceClient investmentServiceClient;
-
-        @MockitoBean
-        private InvestmentRepository investmentRepository;
 
         @MockitoBean
         private WalletRepository walletRepository;
@@ -84,7 +80,7 @@ class InvestmentAPITest {
         void givenAValidBody_whenCallsCreateInvestment_thenReturnsCreated() throws Exception {
                 final var expectedId =  InvestmentID.from("inv-234");
                 when(investmentServiceClient.create(any(CreateInvestmentRequest.class)))
-                                .thenReturn(CreateInvestmentOutput.from(expectedId.getValue()));
+                                .thenReturn(new CreateInvestmentResult(expectedId.getValue()));
 
                 final var body = new CreateInvestmentRequest(
                                 "1000.00",
@@ -115,7 +111,7 @@ class InvestmentAPITest {
                 final var anId = "inv-345";
 
                 when(investmentServiceClient.update(any(String.class), any(UpdateInvestmentRequest.class)))
-                                .thenReturn(new UpdateInvestmentOutput(anId));
+                                .thenReturn(new UpdateInvestmentResult(anId));
 
                 final var body = new UpdateInvestmentRequest(
                                 "1500.00",

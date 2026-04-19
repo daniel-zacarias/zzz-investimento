@@ -1,18 +1,14 @@
 package br.zzz.infrastructure.investment;
 
 import br.zzz.infrastructure.investment.client.InvestmentServiceClient;
-import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
-import br.zzz.investimento.domain.investment.InvestmentID;
 import br.zzz.investimento.domain.wallet.WalletID;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,26 +19,6 @@ public class InvestmentServiceGateway implements InvestmentGateway {
 
     public InvestmentServiceGateway(final InvestmentServiceClient investmentServiceClient) {
         this.investmentServiceClient = Objects.requireNonNull(investmentServiceClient);
-    }
-
-    @Override
-    public Investment create(final Investment investment) {
-        throw new UnsupportedOperationException("Investment operations are handled by investment-service");
-    }
-
-    @Override
-    public void deleteById(final InvestmentID id) {
-        throw new UnsupportedOperationException("Investment operations are handled by investment-service");
-    }
-
-    @Override
-    public Optional<Investment> findById(final InvestmentID id) {
-        throw new UnsupportedOperationException("Investment operations are handled by investment-service");
-    }
-
-    @Override
-    public List<Investment> findAllByWalletId(final WalletID walletId) {
-        throw new UnsupportedOperationException("Investment operations are handled by investment-service");
     }
 
     @Override
@@ -74,10 +50,5 @@ public class InvestmentServiceGateway implements InvestmentGateway {
                             return v.setScale(2, RoundingMode.HALF_UP);
                         }
                 ));
-    }
-
-    @Override
-    public Investment update(final Investment investment) {
-        throw new UnsupportedOperationException("Investment operations are handled by investment-service");
     }
 }
