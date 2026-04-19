@@ -1,7 +1,9 @@
 package br.zzz.infrastructure.wallet;
 
+import br.zzz.infrastructure.investment.client.InvestmentServiceClient;
 import br.zzz.infrastructure.wallet.persistence.WalletJpaEntity;
 import br.zzz.infrastructure.wallet.persistence.WalletRepository;
+import br.zzz.investimento.domain.investment.InvestmentID;
 import br.zzz.investimento.domain.pagination.Pagination;
 import br.zzz.investimento.domain.wallet.Wallet;
 import br.zzz.investimento.domain.wallet.WalletGateway;
@@ -12,15 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class WalletPostgresGateway implements WalletGateway {
 
     private final WalletRepository walletRepository;
+    private final InvestmentServiceClient investmentServiceClient;
 
-    public WalletPostgresGateway(final WalletRepository walletRepository) {
+    public WalletPostgresGateway(final WalletRepository walletRepository,
+                                 final InvestmentServiceClient investmentServiceClient) {
         this.walletRepository = Objects.requireNonNull(walletRepository);
+        this.investmentServiceClient = Objects.requireNonNull(investmentServiceClient);
     }
 
     @Override
@@ -62,7 +70,37 @@ public class WalletPostgresGateway implements WalletGateway {
         final var to = (int) Math.min(from + perPage, total);
         final var items = sorted.subList((int) from, to);
 
-        return new Pagination<>(page, perPage, total, items);
+        if (items.isEmpty()) {
+            return new Pagination<>(page, perPage, total, items);
+        }
+
+        final var walletIds = items.stream()
+                .map(it -> it.getId().getValue())
+                .distinct()
+                .toList();
+
+        final Map<String, Set<InvestmentID>> investmentIdsByWalletId = investmentServiceClient
+                .getInvestmentIdsByWalletIds(walletIds)
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> e.getValue().stream().map(InvestmentID::from).collect(Collectors.toSet())
+                ));
+
+        final var enrichedItems = items.stream()
+                .map(w -> Wallet.with(
+                        w.getId(),
+                        w.getUserId(),
+                        w.getName(),
+                        investmentIdsByWalletId.getOrDefault(w.getId().getValue(), Set.of()),
+                        w.getCreatedAt(),
+                        w.getUpdatedAt(),
+                        w.getDeletedAt()
+                ))
+                .toList();
+
+        return new Pagination<>(page, perPage, total, enrichedItems);
     }
 
     private static Comparator<Wallet> buildComparator(final WalletSearchQuery query) {
@@ -86,6 +124,8 @@ public class WalletPostgresGateway implements WalletGateway {
     }
 
     private Wallet save(final Wallet wallet) {
-        return walletRepository.save(WalletJpaEntity.from(wallet)).toAggregate();
+        final var saved = walletRepository.save(WalletJpaEntity.from(wallet));
+        final var investmentIds = wallet.getInvestments() == null ? Set.<InvestmentID>of() : wallet.getInvestments();
+        return saved.toAggregate(investmentIds);
     }
 }

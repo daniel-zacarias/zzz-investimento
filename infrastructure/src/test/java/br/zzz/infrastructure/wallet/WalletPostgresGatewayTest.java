@@ -1,5 +1,6 @@
 package br.zzz.infrastructure.wallet;
 
+import br.zzz.infrastructure.investment.client.InvestmentServiceClient;
 import br.zzz.infrastructure.wallet.persistence.WalletJpaEntity;
 import br.zzz.infrastructure.wallet.persistence.WalletRepository;
 import br.zzz.investimento.domain.investment.InvestmentID;
@@ -13,9 +14,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,6 +26,9 @@ class WalletPostgresGatewayTest {
 
     @Mock
     private WalletRepository walletRepository;
+
+    @Mock
+    private InvestmentServiceClient investmentServiceClient;
 
     @InjectMocks
     private WalletPostgresGateway gateway;
@@ -42,6 +48,9 @@ class WalletPostgresGatewayTest {
         when(walletRepository.findAllByUserId(aUserId.getValue()))
                 .thenReturn(List.of(WalletJpaEntity.from(wallet)));
 
+        when(investmentServiceClient.getInvestmentIdsByWalletIds(anyList()))
+                .thenReturn(Map.of(wallet.getId().getValue(), Set.of(inv1.getValue(), inv2.getValue())));
+
         final var query = new WalletSearchQuery(0, 10, null, null, null, aUserId);
         final var result = gateway.findAllByUserId(query);
 
@@ -59,6 +68,7 @@ class WalletPostgresGatewayTest {
         assertEquals(wallet.getInvestments().size(), actual.getInvestments().size());
 
         verify(walletRepository, times(1)).findAllByUserId(aUserId.getValue());
+        verify(investmentServiceClient, times(1)).getInvestmentIdsByWalletIds(anyList());
     }
 
     @Test
@@ -76,5 +86,6 @@ class WalletPostgresGatewayTest {
         assertEquals(0, result.total());
 
         verify(walletRepository, times(1)).findAllByUserId(aUserId.getValue());
+        verify(investmentServiceClient, times(0)).getInvestmentIdsByWalletIds(anyList());
     }
 }

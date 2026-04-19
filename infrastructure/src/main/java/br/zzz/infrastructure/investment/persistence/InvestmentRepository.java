@@ -18,9 +18,20 @@ public interface InvestmentRepository extends JpaRepository<InvestmentJpaEntity,
             "group by i.walletId")
     List<WalletTotalResultProjection> sumResultByWalletIds(@Param("walletIds") List<String> walletIds);
 
+    @Query("select i.walletId as walletId, i.id as investmentId " +
+            "from Investment i " +
+            "where i.walletId in :walletIds")
+    List<WalletInvestmentIdProjection> findInvestmentIdsByWalletIds(@Param("walletIds") List<String> walletIds);
+
     interface WalletTotalResultProjection {
         String getWalletId();
 
         Double getTotalResult();
+    }
+
+    interface WalletInvestmentIdProjection {
+        String getWalletId();
+
+        String getInvestmentId();
     }
 }

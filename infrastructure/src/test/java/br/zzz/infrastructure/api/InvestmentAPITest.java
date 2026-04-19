@@ -1,16 +1,11 @@
 package br.zzz.infrastructure.api;
 
+import br.zzz.infrastructure.investment.client.InvestmentServiceClient;
 import br.zzz.infrastructure.investment.models.CreateInvestmentRequest;
+import br.zzz.infrastructure.investment.models.InvestmentResponse;
 import br.zzz.infrastructure.investment.models.UpdateInvestmentRequest;
-import br.zzz.investimento.application.investment.create.CreateInvestmentCommand;
 import br.zzz.investimento.application.investment.create.CreateInvestmentOutput;
-import br.zzz.investimento.application.investment.create.CreateInvestmentUseCase;
-import br.zzz.investimento.application.investment.delete.DeleteInvestmentByIdUseCase;
-import br.zzz.investimento.application.investment.retrieve.get.InvestmentOutput;
-import br.zzz.investimento.application.investment.retrieve.get.FindInvestmentByIdUseCase;
-import br.zzz.investimento.application.investment.update.UpdateInvestmentCommand;
 import br.zzz.investimento.application.investment.update.UpdateInvestmentOutput;
-import br.zzz.investimento.application.investment.update.UpdateInvestmentUseCase;
 import br.zzz.investimento.domain.investment.InvestmentID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -25,9 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import br.zzz.infrastructure.investment.persistence.InvestmentRepository;
 import br.zzz.infrastructure.wallet.persistence.WalletRepository;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,16 +46,7 @@ class InvestmentAPITest {
         private ObjectMapper objectMapper;
 
         @MockitoBean
-        private CreateInvestmentUseCase createInvestmentUseCase;
-
-        @MockitoBean
-        private FindInvestmentByIdUseCase findInvestmentByIdUseCase;
-
-        @MockitoBean
-        private UpdateInvestmentUseCase updateInvestmentUseCase;
-
-        @MockitoBean
-        private DeleteInvestmentByIdUseCase deleteInvestmentByIdUseCase;
+        private InvestmentServiceClient investmentServiceClient;
 
         @MockitoBean
         private InvestmentRepository investmentRepository;
@@ -75,17 +59,16 @@ class InvestmentAPITest {
                 final var anId = InvestmentID.from("inv-123");
                 final var createdAt = Instant.parse("2026-03-13T10:15:30Z");
 
-                when(findInvestmentByIdUseCase.execute(anId.getValue())).thenReturn(
-                                new InvestmentOutput(
-                                                anId,
-                                                12,
-                                                new BigDecimal("1000.00"),
-                                                BigDecimal.ZERO,
-                                                new BigDecimal("1126.83"),
-                                                new BigDecimal("0.01"),
-                                                createdAt,
-                                                createdAt,
-                                                null));
+                when(investmentServiceClient.getById(anId.getValue())).thenReturn(
+                                new InvestmentResponse(
+                                        anId.getValue(),
+                                        1000.00,
+                                        0.0,
+                                        12,
+                                        0.01,
+                                        1126.83,
+                                        createdAt.toString()
+                                ));
 
                 mockMvc.perform(get("/investments/{id}", anId.getValue()))
                                 .andExpect(status().isOk())
@@ -94,13 +77,13 @@ class InvestmentAPITest {
                                 .andExpect(jsonPath("$.annualPeriod").value(12))
                                 .andExpect(jsonPath("$.annualRate").value(0.01));
 
-                verify(findInvestmentByIdUseCase).execute(anId.getValue());
+                verify(investmentServiceClient).getById(anId.getValue());
         }
 
         @Test
         void givenAValidBody_whenCallsCreateInvestment_thenReturnsCreated() throws Exception {
                 final var expectedId =  InvestmentID.from("inv-234");
-                when(createInvestmentUseCase.execute(any(CreateInvestmentCommand.class)))
+                when(investmentServiceClient.create(any(CreateInvestmentRequest.class)))
                                 .thenReturn(CreateInvestmentOutput.from(expectedId.getValue()));
 
                 final var body = new CreateInvestmentRequest(
@@ -108,7 +91,7 @@ class InvestmentAPITest {
                                 12,
                                 "0.01",
                                 null,
-                                expectedId.getValue()
+                                "wallet-123"
                 );
 
                 mockMvc.perform(post("/investments")
@@ -117,21 +100,21 @@ class InvestmentAPITest {
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.id").value(expectedId.getValue()));
 
-                final var commandCaptor = ArgumentCaptor.forClass(CreateInvestmentCommand.class);
-                verify(createInvestmentUseCase).execute(commandCaptor.capture());
+                final var reqCaptor = ArgumentCaptor.forClass(CreateInvestmentRequest.class);
+                verify(investmentServiceClient).create(reqCaptor.capture());
 
-                final var aCommand = commandCaptor.getValue();
-                assertEquals(0, aCommand.amount().compareTo(new BigDecimal("1000.00")));
-                assertEquals(12, aCommand.annualPeriod());
-                assertEquals(0, aCommand.annualRate().compareTo(new BigDecimal("0.01")));
-                assertEquals(0, aCommand.monthAmount().compareTo(BigDecimal.ZERO));
+                final var req = reqCaptor.getValue();
+                assertEquals("1000.00", req.amount());
+                assertEquals(12, req.annualPeriod());
+                assertEquals("0.01", req.annualRate());
+                assertEquals("wallet-123", req.walletId());
         }
 
         @Test
         void givenAnIdAndValidBody_whenCallsUpdateInvestment_thenReturnsOk() throws Exception {
                 final var anId = "inv-345";
 
-                when(updateInvestmentUseCase.execute(any(UpdateInvestmentCommand.class)))
+                when(investmentServiceClient.update(any(String.class), any(UpdateInvestmentRequest.class)))
                                 .thenReturn(new UpdateInvestmentOutput(anId));
 
                 final var body = new UpdateInvestmentRequest(
@@ -147,15 +130,15 @@ class InvestmentAPITest {
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.id").value(anId));
 
-                final var commandCaptor = ArgumentCaptor.forClass(UpdateInvestmentCommand.class);
-                verify(updateInvestmentUseCase).execute(commandCaptor.capture());
+                final var idCaptor = ArgumentCaptor.forClass(String.class);
+                final var reqCaptor = ArgumentCaptor.forClass(UpdateInvestmentRequest.class);
+                verify(investmentServiceClient).update(idCaptor.capture(), reqCaptor.capture());
 
-                final var aCommand = commandCaptor.getValue();
-                assertEquals(anId, aCommand.id());
-                assertEquals(0, aCommand.amount().compareTo(new BigDecimal("1500.00")));
-                assertEquals(18, aCommand.annualPeriod());
-                assertEquals(0, aCommand.annualRate().compareTo(new BigDecimal("0.02")));
-                assertEquals(0, aCommand.monthAmount().compareTo(BigDecimal.ZERO));
+                assertEquals(anId, idCaptor.getValue());
+                final var req = reqCaptor.getValue();
+                assertEquals("1500.00", req.amount());
+                assertEquals(18, req.annualPeriod());
+                assertEquals("0.02", req.annualRate());
         }
 
         @Test
@@ -165,6 +148,6 @@ class InvestmentAPITest {
                 mockMvc.perform(delete("/investments/{id}", anId))
                                 .andExpect(status().isNoContent());
 
-                verify(deleteInvestmentByIdUseCase).execute(anId);
+                verify(investmentServiceClient).deleteById(anId);
         }
 }

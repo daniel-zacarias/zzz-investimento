@@ -19,6 +19,7 @@
         <module>domain</module>
         <module>application</module>
         <module>infrastructure</module>
+        <module>investment-service</module>
     </modules>
     <build>
         <plugins>

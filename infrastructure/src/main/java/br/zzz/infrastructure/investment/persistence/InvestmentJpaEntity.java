@@ -1,15 +1,11 @@
 package br.zzz.infrastructure.investment.persistence;
 
-import br.zzz.infrastructure.wallet.persistence.WalletJpaEntity;
 import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentID;
 import br.zzz.investimento.domain.wallet.WalletID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -28,10 +24,6 @@ public class InvestmentJpaEntity {
 
     @Column(name = "wallet_id", nullable = false)
     private String walletId;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "wallet_id", nullable = false, insertable = false, updatable = false)
-    private WalletJpaEntity wallet;
 
     @Column(name = "amount", nullable = false)
     private Double amount;
@@ -125,14 +117,6 @@ public class InvestmentJpaEntity {
 
     public void setWalletId(final String walletId) {
         this.walletId = walletId;
-    }
-
-    public WalletJpaEntity getWallet() {
-        return wallet;
-    }
-
-    public void setWallet(final WalletJpaEntity wallet) {
-        this.wallet = wallet;
     }
 
     public Double getAmount() {

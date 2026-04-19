@@ -17,6 +17,7 @@ import br.zzz.investimento.domain.investment.InvestmentGateway;
 import java.util.Objects;
 
 @Configuration
+@org.springframework.context.annotation.Profile("legacy-investment-usecases")
 public class InvestmentUseCaseConfig {
     private final InvestmentGateway investmentGateway;
 

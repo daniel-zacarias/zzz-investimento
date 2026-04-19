@@ -1,6 +1,5 @@
 package br.zzz.investimento.application.wallet.retrieve.get;
 
-import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 import br.zzz.investimento.domain.investment.InvestmentID;
 import br.zzz.investimento.domain.user.UserID;
@@ -10,11 +9,13 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.*;
 
 class FindWalletsByUserIdUseCaseTest {
@@ -31,8 +32,6 @@ class FindWalletsByUserIdUseCaseTest {
                 investments
         );
 
-        final var inv1 = Investment.newInvestment(1, new BigDecimal("1000.00"), new BigDecimal("0.10"), wallet.getId()); // 1100.00
-        final var inv2 = Investment.newInvestment(2, new BigDecimal("1000.00"), new BigDecimal("0.10"), wallet.getId()); // 1210.00
         final var expectedTotalAmount = new BigDecimal("2310.00");
 
         final var gatewayMock = mock(WalletGateway.class);
@@ -40,8 +39,8 @@ class FindWalletsByUserIdUseCaseTest {
                 .thenReturn(List.of(wallet));
 
         final var investmentGatewayMock = mock(InvestmentGateway.class);
-        when(investmentGatewayMock.findAllByWalletId(eq(wallet.getId())))
-                .thenReturn(List.of(inv1, inv2));
+        when(investmentGatewayMock.sumResultsByWalletIds(anySet()))
+                .thenReturn(Map.of(wallet.getId(), expectedTotalAmount));
 
         final var useCase = new DefaultFindWalletsByUserIdUseCase(gatewayMock, investmentGatewayMock);
 
@@ -59,7 +58,7 @@ class FindWalletsByUserIdUseCaseTest {
         assertEquals(investments, output.investments());
         assertEquals(expectedTotalAmount, output.totalAmount());
         verify(gatewayMock, times(1)).findAllByUserId(any(UserID.class));
-        verify(investmentGatewayMock, times(1)).findAllByWalletId(eq(wallet.getId()));
+        verify(investmentGatewayMock, times(1)).sumResultsByWalletIds(anySet());
     }
 
     @Test
@@ -82,7 +81,7 @@ class FindWalletsByUserIdUseCaseTest {
         assertNotNull(outputs);
         assertTrue(outputs.isEmpty());
         verify(gatewayMock, times(1)).findAllByUserId(any(UserID.class));
-        verify(investmentGatewayMock, never()).findAllByWalletId(any());
+        verify(investmentGatewayMock, never()).sumResultsByWalletIds(anySet());
     }
 
     @Test
@@ -120,7 +119,7 @@ class FindWalletsByUserIdUseCaseTest {
                 .thenReturn(List.of(wallet));
 
         final var investmentGatewayMock = mock(InvestmentGateway.class);
-        when(investmentGatewayMock.findAllByWalletId(any())).thenReturn(List.of());
+        when(investmentGatewayMock.sumResultsByWalletIds(anySet())).thenReturn(Map.of());
 
         final var useCase = new DefaultFindWalletsByUserIdUseCase(gatewayMock, investmentGatewayMock);
 

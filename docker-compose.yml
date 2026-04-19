@@ -12,5 +12,19 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  investment-postgres:
+    image: postgres:16-alpine
+    container_name: investimento-investment-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: investments
+    ports:
+      - "5433:5432"
+    volumes:
+      - investment_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+  investment_postgres_data:

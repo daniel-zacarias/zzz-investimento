@@ -6,6 +6,7 @@ import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 import br.zzz.investimento.domain.investment.InvestmentID;
 import br.zzz.investimento.domain.wallet.WalletID;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
+@Profile("legacy-investment-db")
 public class InvestmentPostgresGateway implements InvestmentGateway {
 
     private final InvestmentRepository investmentRepository;
