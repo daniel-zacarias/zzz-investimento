@@ -1,8 +1,8 @@
 spring:
   application:
-    name: investimento
+    name: investment-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/investimento
+    url: jdbc:postgresql://localhost:5433/investments
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -12,23 +12,17 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: investments
   flyway:
     enabled: true
     locations: classpath:db/migration
+    create-schemas: true
+    schemas: investments
 
 server:
-  port: 8080
+  port: 8081
   servlet:
     context-path: /api
 
-logging:
-  level:
-    root: INFO
-    com.investimento: DEBUG
-
-investment-service:
-  base-url: "http://localhost:8081"
-
-app:
-  cors:
-    allowed-origins: "http://localhost:5173,http://localhost:3000"
+wallet-service:
+  base-url: http://localhost:8080

@@ -1,6 +1,5 @@
 package br.zzz.investimento.application.wallet.retrieve.get;
 
-import br.zzz.investimento.domain.investment.Investment;
 import br.zzz.investimento.domain.investment.InvestmentGateway;
 import br.zzz.investimento.domain.user.UserID;
 import br.zzz.investimento.domain.wallet.WalletGateway;
@@ -31,11 +30,17 @@ public class DefaultFindWalletsByUserIdUseCase extends FindWalletsByUserIdUseCas
             return List.of();
         }
 
+        final var walletIds = wallets.stream()
+                .map(w -> w.getId())
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toSet());
+
+        final var totalsByWalletId = investmentGateway.sumResultsByWalletIds(walletIds);
+
         return wallets.stream()
                 .map(aWallet -> {
-                    final var totalAmount = this.investmentGateway.findAllByWalletId(aWallet.getId()).stream()
-                            .map(Investment::getResult)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    final var totalAmount = totalsByWalletId
+                            .getOrDefault(aWallet.getId(), BigDecimal.ZERO)
                             .setScale(2, RoundingMode.HALF_UP);
 
                     return WalletOutput.from(aWallet, totalAmount);
